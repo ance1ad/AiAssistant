@@ -1,45 +1,33 @@
 ﻿using Telegram.Bot;
-using Telegram.Bot.Types;
+using WebApplication1.Telegram;
 
 namespace WebApplication1.Services;
 
 public class TelegramBotService
 {
     private readonly TelegramBotClient _client;
-
-    public TelegramBotService(IConfiguration configuration)
+    private readonly TelegramUpdateHandler _updateHandler;
+    
+    
+    public TelegramBotService(IConfiguration configuration, 
+        TelegramUpdateHandler updateHandler)
     {
         var token = configuration["Telegram:BotToken"];
         _client = new TelegramBotClient(token);
+
+        _updateHandler = updateHandler;
     }
 
+    
     public void Start()
     {
         _client.StartReceiving(
-            HandleUpdate,
+            _updateHandler.HandleUpdate,
             HandleError
         );
     }
 
-
-    private async Task HandleUpdate(
-        ITelegramBotClient botClient,
-        Update update,
-        CancellationToken cancellationToken)
-    {
-        if (update.Message?.Text != null)
-        {
-            var chatId = update.Message.Chat.Id;
-
-            await botClient.SendMessage(
-                chatId,
-                "Привет! Я работаю 🤖",
-                cancellationToken: cancellationToken
-            );
-        }
-    }
-
-
+    
     private Task HandleError(
         ITelegramBotClient botClient,
         Exception exception,

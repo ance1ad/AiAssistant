@@ -10,14 +10,14 @@ public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
     {
         builder.HasKey(u => u.Id);
         
-                
-        builder.Property(u => u.Email)
-            .IsRequired()
-            .HasMaxLength(100);
         
         builder.Property(u => u.Name)
             .IsRequired()
             .HasMaxLength(60);
+
+        
+        builder.HasIndex(u => u.TelegramId)
+            .IsUnique();
         
         
         builder

@@ -22,9 +22,9 @@ public class UsersRepository(AssistentDbContext dbContext)
     }
     
     
-    public async Task<UserEntity?> Get(Guid id)
+    public async Task<UserEntity?> Get(long id)
     {
-        return await _dbContext.Users.Where(a => a.Id == id)
+        return await _dbContext.Users.Where(a => a.TelegramId == id)
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
@@ -35,7 +35,7 @@ public class UsersRepository(AssistentDbContext dbContext)
             .Where(a => a.Id == id)
             .ExecuteUpdateAsync(a => a
                 .SetProperty(user => user.Name, newUser.Name)
-                .SetProperty(user => user.Email, newUser.Email)
+                .SetProperty(user => user.TelegramId, newUser.TelegramId)
             );
         return rows > 0;
     }

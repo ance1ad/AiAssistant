@@ -19,7 +19,7 @@ public class UsersController(UserService userService) : ControllerBase
     
     
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser(Guid id)
+    public async Task<IActionResult> GetUserByTelegramId(long id)
     { 
         var user = await _userService.Get(id);
         if (user != null)
@@ -31,16 +31,15 @@ public class UsersController(UserService userService) : ControllerBase
     
     
     [HttpPost]
-    public async Task<IActionResult> PostUser(CreateUserDto newUser)
+    public async Task<IActionResult> PostUser(long telegramId, string name)
     { 
-        var createdUser = await _userService.Create(newUser);
+        var createdUser = await _userService.Create(telegramId, name);
         
         return CreatedAtAction(
-            nameof(GetUser), 
+            nameof(GetUserByTelegramId), 
             new {id = createdUser.Id},
             createdUser
         );
-
     }
 
     

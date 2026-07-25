@@ -8,43 +8,52 @@ public class UserService(UsersRepository usersRepository)
 {
     private readonly UsersRepository _usersRepository = usersRepository;
 
+
+    public async Task<UserDto> GetOrCreate(long telegramId, string username)
+    {
+        UserDto? user = await Get(telegramId);
+        if (user == null)
+        {
+            user = await Create(telegramId, username);
+        }
+        return user;
+    }
+    
+    
     public async Task<List<UserDto>> Get()
     {
         var list = await _usersRepository.Get();
         return list
             .Select(user => new UserDto (
                 user.Id, 
-                user.Name, 
-                user.Email))
+                user.Name))
             .ToList();
     }
     
-    public async Task<UserDto?> Get(Guid id)
+    public async Task<UserDto?> Get(long id)
     {
         var user = await _usersRepository.Get(id);
         if (user != null)
         {
-            return new UserDto(user.Id, user.Name, user.Email);
+            return new UserDto(user.Id, user.Name);
         }
         return null;
     }
-    
-    
-    public async Task<UserDto> Create(CreateUserDto userDto)
+
+
+    public async Task<UserDto> Create(long telegramId, string name)
     {
         var userEntity = new UserEntity
         {
             Id = Guid.NewGuid(),
-            Name = userDto.Name,
-            Email = userDto.Email
+            Name = name,
         };
         await _usersRepository.Add(userEntity);
         
         return new UserDto
         (
             userEntity.Id,
-            userEntity.Name,
-            userEntity.Email
+            userEntity.Name
         );
     }
     
@@ -53,7 +62,7 @@ public class UserService(UsersRepository usersRepository)
     {
         var userEntity = new UserEntity { 
             Name = userDto.Name,
-            Email = userDto.Email
+            TelegramId = userDto.TelegramId
         };
         return _usersRepository.Update(id, userEntity);
     }

@@ -2,5 +2,5 @@
 
 public record UpdateUserDto(
     string Name, 
-    string Email
+    long TelegramId
 );
