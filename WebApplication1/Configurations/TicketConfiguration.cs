@@ -8,7 +8,10 @@ public class TicketConfiguration : IEntityTypeConfiguration<TicketEntity>
 {
     public void Configure(EntityTypeBuilder<TicketEntity> builder)
     {
-        builder.HasKey(x => x.Id);
+        builder.HasKey(t => t.Id);
 
+        builder.Property(t => t.Message)
+            .IsRequired();
+        
     }
 }

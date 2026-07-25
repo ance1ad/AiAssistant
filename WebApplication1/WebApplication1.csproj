@@ -1,19 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+      <UserSecretsId>a7a4339f-3620-4176-ae71-50ca1f3fcf95</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+        <PackageReference Include="Telegram.Bot" Version="22.10.2.1" />
     </ItemGroup>
 
 </Project>

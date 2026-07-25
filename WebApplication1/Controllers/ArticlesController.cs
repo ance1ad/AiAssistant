@@ -1,91 +1,74 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Dtos;
-using WebApplication1.Models;
-using WebApplication1.Repositories;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers;
 
 
 [ApiController]
 [Route("articles")]
-public class ArticlesController(ArticlesRepository articlesRepository) : ControllerBase
+public class ArticlesController(ArticleService articleService) : ControllerBase
 {
-    private readonly ArticlesRepository _articlesRepository = articlesRepository;
+    private readonly ArticleService _articleService = articleService;
 
+    
     [HttpGet]
     public async Task<IActionResult> GetArticles()
     {
-        var articles = await _articlesRepository.Get();
+        var articles = await _articleService.Get();
         return Ok(articles);
     }
     
     
     [HttpGet("{id}")]
-    public IActionResult GetArticle(int id)
+    public async Task<IActionResult> GetArticle(Guid id)
     { 
-        return Ok();
+        var article = await _articleService.Get(id);
+        if (article == null)
+        {
+            return NotFound();
+        }
+        return Ok(article);
     }
     
     
     [HttpPost]
     public async Task<IActionResult> PostArticle(CreateArticleDto newArticle)
     { 
-        
-        var articleEntity = new ArticleEntity
-        {
-            Id = Guid.NewGuid(),
-            Title = newArticle.Title,
-            Content = newArticle.Content
-        };
-        
-        await _articlesRepository.Add(articleEntity);
-        
-        var articleDto = new ArticleDto(
-            articleEntity.Id,
-            newArticle.Title,
-            newArticle.Content
-        );
-        
+        var createdArticle = await _articleService.Create(newArticle);
         
         return CreatedAtAction(
             nameof(GetArticle), 
-            new {id = articleDto.Id},
-            articleDto
+            new {id = createdArticle.Id},
+            createdArticle
         );
-
     }
 
     
-    // [HttpPut]
-    // public IActionResult PutArticle(int id, UpdateArticleDto updateArticle)
-    // {
-    //     var index = articleDtos.FindIndex(a => a.Id == id);
-    //
-    //     if (index == -1)
-    //     {
-    //         return NotFound();
-    //     }
-    //     
-    //     articleDtos[index] = new (
-    //         articleDtos[index].Id,
-    //         updateArticle.Title,
-    //         updateArticle.Content
-    //     );
-    //     return NoContent();
-    // }
-    //
-    //
-    // [HttpDelete("{id}")]
-    // public IActionResult DeleteArticle(int id)
-    // {
-    //     var article = articleDtos.FirstOrDefault(p => p.Id == id);
-    //     if (article == null)
-    //     {
-    //         return NotFound();
-    //     }
-    //     articleDtos.Remove(article);
-    //     return NoContent();
-    // }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutArticle(Guid id, UpdateArticleDto updateArticle)
+    {
+        bool updated = await _articleService.Update(id, updateArticle);
+    
+        if (updated)
+        {
+            return NoContent();
+        }
+        return NotFound();
+    }
+    
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteArticle(Guid id)
+    {
+        bool result = await _articleService.Delete(id);
+        if (result)
+        {
+            return NoContent();
+        }
+        return NotFound();
+        
+    }
     
     
 }

@@ -4,15 +4,15 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories;
 
-public class ArticlesRepository
+public class ArticlesRepository(AssistentDbContext dbContext)
 {
-    private readonly AssistentDbContext _dbContext;
+    private readonly AssistentDbContext _dbContext = dbContext;
 
-    public ArticlesRepository(AssistentDbContext dbContext)
+    public async Task Add(ArticleEntity article)
     {
-        _dbContext = dbContext;
+        _dbContext.Add(article);
+        await _dbContext.SaveChangesAsync();
     }
-    
     
     public async Task<List<ArticleEntity>> Get()
     {
@@ -22,9 +22,30 @@ public class ArticlesRepository
     }
     
     
-    public async Task Add(ArticleEntity article)
+    public async Task<ArticleEntity?> Get(Guid id)
     {
-        await _dbContext.AddAsync(article);
-        await _dbContext.SaveChangesAsync();
+        return await _dbContext.Articles.Where(a => a.Id == id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
     }
+    
+    public async Task<bool> Update(Guid id, ArticleEntity newArticle)
+    {
+        var rows = await _dbContext.Articles
+            .Where(a => a.Id == id)
+            .ExecuteUpdateAsync(a => a
+                .SetProperty(article => article.Title, newArticle.Title)
+                .SetProperty(article => article.Content, newArticle.Content)
+            );
+        return rows > 0;
+    }
+    
+    public async Task<bool> Delete(Guid id)
+    {
+        var deleteCount = await _dbContext.Articles
+            .Where(a => a.Id == id)
+            .ExecuteDeleteAsync();
+        return deleteCount > 0;
+    }
+
 }

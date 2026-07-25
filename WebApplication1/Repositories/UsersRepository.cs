@@ -8,39 +8,44 @@ public class UsersRepository(AssistentDbContext dbContext)
 {
     private readonly AssistentDbContext _dbContext = dbContext;
 
-    public async Task Add(ArticleEntity article)
+    public async Task Add(UserEntity user)
     {
-        await _dbContext.AddAsync(article);
+        _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task<List<ArticleEntity>> Get()
+    public async Task<List<UserEntity>> Get()
     {
-        return await _dbContext.Articles
+        return await _dbContext.Users
             .AsNoTracking()
             .ToListAsync();
     }
     
-    public async Task<ArticleEntity?> Get(Guid id)
+    
+    public async Task<UserEntity?> Get(Guid id)
     {
-        return await _dbContext.Articles.Where(a => a.Id == id).FirstOrDefaultAsync();
+        return await _dbContext.Users.Where(a => a.Id == id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
     }
     
-    public async Task Update(Guid id, ArticleEntity newArticle)
+    public async Task<bool> Update(Guid id, UserEntity newUser)
     {
-        await _dbContext.Articles
+        var rows = await _dbContext.Users
             .Where(a => a.Id == id)
             .ExecuteUpdateAsync(a => a
-                .SetProperty(article => article.Title, newArticle.Title)
-                .SetProperty(article => article.Content, newArticle.Content)
+                .SetProperty(user => user.Name, newUser.Name)
+                .SetProperty(user => user.Email, newUser.Email)
             );
+        return rows > 0;
     }
     
-    public async Task Delete(Guid id)
+    public async Task<bool> Delete(Guid id)
     {
-        await _dbContext.Articles
+        var deleteCount = await _dbContext.Users
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync();
+        return deleteCount > 0;
     }
 
 }

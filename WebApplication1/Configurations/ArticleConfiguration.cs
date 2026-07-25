@@ -8,6 +8,14 @@ public class ArticleConfiguration : IEntityTypeConfiguration<ArticleEntity>
 {
     public void Configure(EntityTypeBuilder<ArticleEntity> builder)
     {
-        builder.HasKey(x => x.Id);
+        builder.HasKey(a => a.Id);
+        
+        builder.Property(a => a.Title)
+            .IsRequired()
+            .HasMaxLength(128);
+        
+        builder.Property(a => a.Content)
+            .IsRequired()
+            .HasMaxLength(1000);
     }
 }
