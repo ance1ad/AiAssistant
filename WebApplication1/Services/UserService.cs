@@ -26,7 +26,8 @@ public class UserService(UsersRepository usersRepository)
         return list
             .Select(user => new UserDto (
                 user.Id, 
-                user.Name))
+                user.Name ?? "Anonymous",
+                user.Email ?? ""))
             .ToList();
     }
     
@@ -35,7 +36,7 @@ public class UserService(UsersRepository usersRepository)
         var user = await _usersRepository.Get(id);
         if (user != null)
         {
-            return new UserDto(user.Id, user.Name);
+            return new UserDto(user.Id, user.Name, user.Email);
         }
         return null;
     }
@@ -46,6 +47,7 @@ public class UserService(UsersRepository usersRepository)
         var userEntity = new UserEntity
         {
             Id = Guid.NewGuid(),
+            TelegramId = telegramId,
             Name = name,
         };
         await _usersRepository.Add(userEntity);
@@ -53,7 +55,8 @@ public class UserService(UsersRepository usersRepository)
         return new UserDto
         (
             userEntity.Id,
-            userEntity.Name
+            userEntity.Name,
+            userEntity.Email
         );
     }
     

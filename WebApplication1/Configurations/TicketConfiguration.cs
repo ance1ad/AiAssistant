@@ -13,5 +13,8 @@ public class TicketConfiguration : IEntityTypeConfiguration<TicketEntity>
         builder.Property(t => t.Message)
             .IsRequired();
         
+        builder.Property(t => t.Status)
+            .IsRequired()
+            .HasConversion<string>();
     }
 }

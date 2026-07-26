@@ -1,5 +1,6 @@
 ﻿# Rider
 .idea/
+*.sln.DotSettings.user
 
 # Visual Studio
 .vs/

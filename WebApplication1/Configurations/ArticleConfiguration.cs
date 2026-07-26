@@ -14,6 +14,10 @@ public class ArticleConfiguration : IEntityTypeConfiguration<ArticleEntity>
             .IsRequired()
             .HasMaxLength(128);
         
+        builder.Property(a => a.Keywords)
+            .IsRequired()
+            .HasMaxLength(200);
+        
         builder.Property(a => a.Content)
             .IsRequired()
             .HasMaxLength(1000);

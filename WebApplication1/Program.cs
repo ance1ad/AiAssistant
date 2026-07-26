@@ -12,13 +12,17 @@ builder.Services.AddDbContext<AssistentDbContext>(options =>
     options.UseNpgsql(configuration.GetConnectionString(nameof(AssistentDbContext)));
 });
 
-builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<ArticleService>();
 builder.Services.AddScoped<ArticlesRepository>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UsersRepository>();
+
+builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<TicketsRepository>();
 
 builder.Services.AddSingleton<TelegramBotService>();
 builder.Services.AddSingleton<TelegramUpdateHandler>();
@@ -27,7 +31,8 @@ builder.Services.AddSingleton<TelegramUpdateHandler>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.MapControllers();

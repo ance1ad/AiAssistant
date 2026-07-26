@@ -2,5 +2,6 @@
 
 public record UserDto(
     Guid Id, 
-    string Name
+    string? Name,
+    string? Email
 );

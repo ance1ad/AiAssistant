@@ -1,5 +1,7 @@
 ﻿using Telegram.Bot;
 using Telegram.Bot.Types;
+using WebApplication1.Dtos;
+using WebApplication1.Models;
 using WebApplication1.Services;
 
 namespace WebApplication1.Telegram;
@@ -29,16 +31,43 @@ public class TelegramUpdateHandler
         var fromInfo = update.Message.From;
 
         using var scope = _scopeFactory.CreateScope();
-        var userService = GetUserService(scope);
         
-        var user = await userService.GetOrCreate(fromInfo.Id, fromInfo.Username);
+        var userService = GetService<UserService>(scope);
+        var ticketService = GetService<TicketService>(scope);
+        var articleService = GetService<ArticleService>(scope);
+        
+        // Создадим и получим пользователя
+        UserDto user = await userService
+            .GetOrCreate(fromInfo.Id, fromInfo.Username);
+        
+        // Добавим его вопрос в базу
+        var ticket = await ticketService
+            .Create(user.Id, update.Message.Text, TicketStatus.New);
 
+        var answer = await articleService.SearchArticle(ticket);
+        if (answer != null)
+        {
+            await botClient.SendMessage(chatId, 
+                $"{answer.Content}", 
+                cancellationToken: cancellationToken);
+        }
+        else
+        {
+            await botClient.SendMessage(chatId, 
+                $"Не смог найти ответ, формирую запрос...", 
+                cancellationToken: cancellationToken);
+        }
+        
+        
+        
     }
 
-    private static UserService GetUserService(IServiceScope scope)
+    private static T GetService<T>(IServiceScope scope)
     {
-        var userService = scope.ServiceProvider
-            .GetRequiredService<UserService>();
-        return userService;
+        var service = scope.ServiceProvider
+            .GetRequiredService<T>();
+        return service;
     }
+    
+    
 }

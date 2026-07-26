@@ -43,6 +43,13 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
             createdArticle
         );
     }
+    
+    [HttpPost("bulk")]
+    public async Task<IActionResult> PostArticles(List<CreateArticleDto> newArticles)
+    {
+        var actions = await _articleService.CreateMany(newArticles);
+        return Ok(actions);
+    }
 
     
     [HttpPut("{id}")]

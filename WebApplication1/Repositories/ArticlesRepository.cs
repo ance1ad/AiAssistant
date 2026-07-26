@@ -14,6 +14,12 @@ public class ArticlesRepository(AssistentDbContext dbContext)
         await _dbContext.SaveChangesAsync();
     }
     
+    public async Task AddRange(List<ArticleEntity> articles)
+    {
+        await _dbContext.AddRangeAsync(articles);
+        await _dbContext.SaveChangesAsync();
+    }
+    
     public async Task<List<ArticleEntity>> Get()
     {
         return await _dbContext.Articles
