@@ -76,6 +76,4 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
         return NotFound();
         
     }
-    
-    
 }

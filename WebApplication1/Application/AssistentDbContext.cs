@@ -13,12 +13,14 @@ public class AssistentDbContext : DbContext
     public DbSet<TicketEntity> Tickets { get; set; }
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<ArticleEntity> Articles { get; set; }
+    public DbSet<AdminEntity> Admins { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ArticleConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new TicketConfiguration());
+        modelBuilder.ApplyConfiguration(new AdminConfiguration());
         
         base.OnModelCreating(modelBuilder);
     }

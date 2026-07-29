@@ -11,7 +11,7 @@ namespace WebApplication1.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "Name",
+                name: "Username",
                 table: "Users",
                 type: "character varying(60)",
                 maxLength: 60,
@@ -71,7 +71,7 @@ namespace WebApplication1.Migrations
                 table: "Users");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Name",
+                name: "Username",
                 table: "Users",
                 type: "text",
                 nullable: false,

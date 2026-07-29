@@ -21,11 +21,17 @@ builder.Services.AddScoped<ArticlesRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UsersRepository>();
 
+builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<AdminsRepository>();
+
 builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<TicketsRepository>();
 
+builder.Services.AddScoped<JwtService>();
+
 builder.Services.AddSingleton<TelegramBotService>();
 builder.Services.AddSingleton<TelegramUpdateHandler>();
+
 
 
 var app = builder.Build();
