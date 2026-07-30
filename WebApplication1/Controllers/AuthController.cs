@@ -22,9 +22,10 @@ public class AuthController(AdminService service) : ControllerBase
     } 
     
     
-    [HttpPost("/register")]
-    public async Task<IActionResult> Register(LoginAdminDto loginAdminDto)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterAdminDto loginAdminDto)
     {
-        return Ok();    
+        var adminDto = await _service.Register(loginAdminDto);
+        return Ok(adminDto);    
     } 
 }

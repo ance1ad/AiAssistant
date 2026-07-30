@@ -12,10 +12,13 @@ public class AdminsRepository(AssistentDbContext dbContext)
 
     public async Task<AdminEntity> Add(AdminEntity admin)
     {
+        DbSet<AdminEntity> admins = _dbContext.Admins;
         _dbContext.Admins.Add(admin);
         await _dbContext.SaveChangesAsync();
         return admin;
     }
+
+    
     
     public async Task<List<AdminEntity>> Get()
     {

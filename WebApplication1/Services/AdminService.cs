@@ -31,7 +31,7 @@ public class AdminService(AdminsRepository adminsRepository, JwtService jwtServi
     }
     
     
-    public async Task<AdminDto> Create(RegisterAdminDto adminDto)
+    public async Task<AdminDto> Register(RegisterAdminDto adminDto)
     {
         // Create hash of password
         string hashPassword = BCrypt.Net.BCrypt.HashPassword(adminDto.Password);

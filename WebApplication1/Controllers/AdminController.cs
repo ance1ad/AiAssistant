@@ -29,7 +29,7 @@ public class AdminController(AdminService adminService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAdmin(RegisterAdminDto adminDto)
     {
-        var createdAdmin = await _adminService.Create(adminDto);
+        var createdAdmin = await _adminService.Register(adminDto);
     
         return CreatedAtAction(
             nameof(GetAdmin),

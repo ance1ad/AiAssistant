@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Dtos;
 using WebApplication1.Services;
 
 namespace WebApplication1.Controllers;
 
-
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("articles")]
 public class ArticlesController(ArticleService articleService) : ControllerBase
 {
     private readonly ArticleService _articleService = articleService;
 
-    
     [HttpGet]
     public async Task<IActionResult> GetArticles()
     {
@@ -30,7 +30,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
         }
         return Ok(article);
     }
-    
+
     
     [HttpPost]
     public async Task<IActionResult> PostArticle(CreateArticleDto newArticle)
@@ -43,6 +43,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
             createdArticle
         );
     }
+    
     
     [HttpPost("bulk")]
     public async Task<IActionResult> PostArticles(List<CreateArticleDto> newArticles)
