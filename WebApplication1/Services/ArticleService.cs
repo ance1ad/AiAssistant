@@ -102,13 +102,9 @@ public class ArticleService(ArticlesRepository articlesRepository)
     }
 
     
-    public async Task<ArticleDto?> SearchArticle(TicketDto ticketDto)
+    public async Task<List<ArticleDto>> FindRelevantArticles(string message)
     {
-        var words = ticketDto.Message
-            .ToLower()
-            .Split(' ',  StringSplitOptions.RemoveEmptyEntries)
-            .Where(word => !_stopWords.Contains(word))
-            .ToArray();
+        var words = ExtractWords(message);
         
         var articles = await _articlesRepository.Get();
 
@@ -116,31 +112,59 @@ public class ArticleService(ArticlesRepository articlesRepository)
             .Select(article => new
             {
                 Article = article,
-
-                Score = words.Count(word =>
-                    article.Title
-                        .ToLower()
-                        .Contains(word)
-                    ||
-                    article.Keywords
-                        .ToLower()
-                        .Contains(word))
+                Score = CalculateScore(words, article)
             })
             .Where(x => x.Score > 0)
             .OrderByDescending(x => x.Score)
-            .FirstOrDefault();
-
-        
-        if (result == null)
-            return null;
+            .Take(5);
 
 
-        return new ArticleDto(
-            result.Article.Id,
-            result.Article.Title,
-            result.Article.Keywords,
-            result.Article.Content
-        );
+        return result.Select(a => new ArticleDto(
+            a.Article.Id,
+            a.Article.Title,
+            a.Article.Keywords,
+            a.Article.Content
+        )).ToList();
+    }
+
+    private static int CalculateScore(string[] words, ArticleEntity article)
+    {
+        return words.Sum(word =>
+        {
+            var score = 0;
+
+            var title = Normalize(article.Title);
+            var keyWords = Normalize(article.Keywords);
+            var content = Normalize(article.Content);
+            
+            
+            if(title.Contains(word))
+                score += 3;
+
+            if(keyWords.Contains(word))
+                score += 2;
+
+            if(content.Contains(word))
+                score += 1;
+
+            return score;
+        });
+    }
+
+    private string[] ExtractWords(string text)
+    {
+        return text
+            .ToLower()
+            .Split([' ', ',', '.', '!', '?', ';', ':', '\n'],  StringSplitOptions.RemoveEmptyEntries)
+            .Where(word => !_stopWords.Contains(word))
+            .ToArray();
+    }
+    
+    private static string Normalize(string text)
+    {
+        return text
+            .ToLower()
+            .Trim();
     }
         
 }

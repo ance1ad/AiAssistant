@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using WebApplication1.Application;
+using WebApplication1.Interfaces;
 using WebApplication1.Repositories;
 using WebApplication1.Services;
 using WebApplication1.Telegram;
@@ -54,6 +55,8 @@ builder.Services.AddScoped<AdminsRepository>();
 builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<TicketsRepository>();
 
+builder.Services.AddScoped<AssistantService>();
+builder.Services.AddHttpClient<IAiService, GeminiService>();
 builder.Services.AddSingleton<JwtService>();
 
 builder.Services.AddSingleton<TelegramBotService>();
@@ -82,9 +85,6 @@ builder.Services
             )
         };
     });
-
-
-
 
 
 var app = builder.Build();

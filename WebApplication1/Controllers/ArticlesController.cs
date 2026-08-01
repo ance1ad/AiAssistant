@@ -24,6 +24,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     public async Task<IActionResult> GetArticle(Guid id)
     { 
         var article = await _articleService.Get(id);
+        
         if (article == null)
         {
             return NotFound();

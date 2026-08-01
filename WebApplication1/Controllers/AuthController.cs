@@ -15,10 +15,11 @@ public class AuthController(AdminService service) : ControllerBase
     public async Task<IActionResult> Login(LoginAdminDto loginAdminDto)
     {
         var token = await _service.Login(loginAdminDto);
+        
         if (token == null)
             return Unauthorized();
         
-        return Ok(new { token });
+        return Ok(new LoginResponseDto(token));
     } 
     
     
