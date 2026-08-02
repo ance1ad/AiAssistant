@@ -1,0 +1,42 @@
+﻿# Rider
+.idea/
+*.sln.DotSettings.user
+
+# Visual Studio
+.vs/
+
+# .NET build files
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# Logs
+*.log
+
+
+# Next.js
+
+client/node_modules/
+client/.next/
+client/out/
+
+
+# Environment
+
+.env
+.env.local
+
+
+# .NET
+
+**/bin/
+**/obj/
+
+
+# IDE
+
+.idea/
+.vscode/

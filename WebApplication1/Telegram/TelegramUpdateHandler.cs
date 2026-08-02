@@ -1,7 +1,5 @@
-﻿using System.Text;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
-using WebApplication1.Interfaces;
 using WebApplication1.Services;
 
 namespace WebApplication1.Telegram;

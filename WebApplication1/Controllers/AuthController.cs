@@ -19,6 +19,18 @@ public class AuthController(AdminService service) : ControllerBase
         if (token == null)
             return Unauthorized();
         
+        Response.Cookies.Append(
+            "token",
+            token,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // пока локально HTTP
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(10)
+            });
+        
+        
         return Ok(new LoginResponseDto(token));
     } 
     

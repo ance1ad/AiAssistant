@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -63,6 +64,21 @@ builder.Services.AddSingleton<TelegramBotService>();
 builder.Services.AddSingleton<TelegramUpdateHandler>();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("client",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:3000")
+                .AllowCredentials()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
+
+
 var jwtKey = configuration["Jwt:Key"]
              ?? throw new InvalidOperationException("JWT Key is missing");
 
@@ -70,6 +86,18 @@ builder.Services
     .AddAuthentication()
     .AddJwtBearer(options =>
     {
+        options.Events =
+            new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token =
+                        context.Request.Cookies["token"];
+
+                    return Task.CompletedTask;
+                }
+            };
+        
         options.TokenValidationParameters = new()
         {
             ValidateIssuer = true,
@@ -98,7 +126,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.UseCors("client");
 
 var bot =  app.Services.GetRequiredService<TelegramBotService>();
 bot.Start();

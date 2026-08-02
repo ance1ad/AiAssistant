@@ -1,4 +1,5 @@
 ﻿using WebApplication1.Dtos;
+using WebApplication1.Dtos.Gemini;
 using WebApplication1.Interfaces;
 
 namespace WebApplication1.Services;
@@ -45,26 +46,24 @@ public class GeminiService(IConfiguration configuration, HttpClient httpClient) 
             $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
         Console.WriteLine(url.Replace(apiKey, "HIDDEN"));
         
-        var request = new
+        var request = new GeminiRequest
         {
-            contents = new[]
-            {
-                new
+            Contents = 
+            [
+                new GeminiRequest.Content
                 {
-                    parts = new[]
-                    {
-                        new
+                    Parts = 
+                    [
+                        new GeminiRequest.Part
                         {
-                            text = prompt
+                            Text = prompt,
                         }
-                    }
+                    ]
                 }
-            }
+            ]
         };
-        var response =
-            await httpClient.PostAsJsonAsync(
-                url,
-                request);
+        
+        var response = await httpClient.PostAsJsonAsync(url, request);
 
 
         if (!response.IsSuccessStatusCode)
@@ -85,34 +84,18 @@ public class GeminiService(IConfiguration configuration, HttpClient httpClient) 
         }
         
         
-        return result
-            .Candidates[0]
-            .Content
-            .Parts[0]
+        var text = result?
+            .Candidates?
+            .FirstOrDefault()?
+            .Content?
+            .Parts?
+            .FirstOrDefault()?
             .Text;
+
+        return text ?? "Не удалось сформировать ответ";
         
     }
 }
 
-public class GeminiResponse
-{
-    public Candidate[] Candidates { get; set; } = [];
-}
 
-
-public class Candidate
-{
-    public GeminiContent Content { get; set; } = null!;
-}
-
-
-public class GeminiContent
-{
-    public GeminiPart[] Parts { get; set; } = [];
-}
-
-
-public class GeminiPart
-{
-    public string Text { get; set; } = "";
-}
+  

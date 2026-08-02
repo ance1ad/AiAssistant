@@ -18,7 +18,6 @@ public class AssistantService(
         UserDto user = await userService
             .GetOrCreate(telegramId, username);
         
-        // Добавим его вопрос в базу
         var ticket = await ticketService
             .Create(user.Id, message, TicketStatus.New);
 
