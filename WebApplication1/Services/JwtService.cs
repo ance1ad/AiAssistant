@@ -15,7 +15,7 @@ public class JwtService
         _configuration = configuration;
     }
     
-    public string CreateToken(AdminEntity admin)
+    public string CreateToken(Admin admin)
     {
         
         var secretKey = _configuration["Jwt:Key"] 

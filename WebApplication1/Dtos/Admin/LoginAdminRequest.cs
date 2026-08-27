@@ -2,12 +2,9 @@
 
 namespace WebApplication1.Dtos;
 
-public record RegisterAdminDto(
+public record LoginAdminRequest(
     [Required]
-    [StringLength(50)]
     string Username,
-
     [Required]
-    [MinLength(6)]
     string Password
 );

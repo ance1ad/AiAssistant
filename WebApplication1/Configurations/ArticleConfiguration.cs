@@ -4,9 +4,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Configurations;
 
-public class ArticleConfiguration : IEntityTypeConfiguration<ArticleEntity>
+public class ArticleConfiguration : IEntityTypeConfiguration<Article>
 {
-    public void Configure(EntityTypeBuilder<ArticleEntity> builder)
+    public void Configure(EntityTypeBuilder<Article> builder)
     {
         builder.HasKey(a => a.Id);
         

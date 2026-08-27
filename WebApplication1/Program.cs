@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using WebApplication1.Application;
+using WebApplication1.Background;
 using WebApplication1.Interfaces;
 using WebApplication1.Repositories;
 using WebApplication1.Services;
+using WebApplication1.Services.Document;
 using WebApplication1.Telegram;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +64,12 @@ builder.Services.AddSingleton<JwtService>();
 
 builder.Services.AddSingleton<TelegramBotService>();
 builder.Services.AddSingleton<TelegramUpdateHandler>();
+
+builder.Services.AddScoped<DocumentService>();
+builder.Services.AddScoped<DocumentRepository>();
+
+builder.Services.AddHostedService<DocumentProcessingWorker>();
+builder.Services.AddScoped<DocumentProcessor>();
 
 
 builder.Services.AddCors(options =>

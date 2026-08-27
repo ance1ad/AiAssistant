@@ -1,5 +1,5 @@
 ﻿namespace WebApplication1.Dtos;
 
-public record LoginResponseDto(
+public record LoginAdminResponse(
     string Token
 );

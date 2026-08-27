@@ -4,9 +4,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Configurations;
 
-public class AdminConfiguration : IEntityTypeConfiguration<AdminEntity>
+public class AdminConfiguration : IEntityTypeConfiguration<Admin>
 {
-    public void Configure(EntityTypeBuilder<AdminEntity> builder)
+    public void Configure(EntityTypeBuilder<Admin> builder)
     {
         builder.HasKey(a => a.Id);
         

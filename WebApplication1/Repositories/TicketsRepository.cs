@@ -6,35 +6,33 @@ namespace WebApplication1.Repositories;
 
 public class TicketsRepository(AssistentDbContext dbContext)
 {
-    private readonly AssistentDbContext _dbContext = dbContext;
     
-    
-    public async Task<List<TicketEntity>> Get()
+    public async Task<List<Ticket>> Get()
     {
-        return await _dbContext.Tickets
+        return await dbContext.Tickets
             .AsNoTracking()
             .ToListAsync();
     }
     
     
-    public async Task Add(TicketEntity ticket)
+    public async Task Add(Ticket ticket)
     {
-        _dbContext.Add(ticket);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Add(ticket);
+        await dbContext.SaveChangesAsync();
     }
     
     
-    public async Task<TicketEntity?> Get(Guid id)
+    public async Task<Ticket?> Get(Guid id)
     {
-        return await _dbContext.Tickets.Where(a => a.Id == id)
+        return await dbContext.Tickets.Where(a => a.Id == id)
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
     
     
-    public async Task<bool> Update(Guid id, TicketEntity newTicket)
+    public async Task<bool> Update(Guid id, Ticket newTicket)
     {
-        var rows = await _dbContext.Tickets
+        var rows = await dbContext.Tickets
             .Where(a => a.Id == id)
             .ExecuteUpdateAsync(a => a
                 .SetProperty(article => article.Message, newTicket.Message)
@@ -46,7 +44,7 @@ public class TicketsRepository(AssistentDbContext dbContext)
     
     public async Task<bool> Delete(Guid id)
     {
-        var deleteCount = await _dbContext.Tickets
+        var deleteCount = await dbContext.Tickets
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync();
         return deleteCount > 0;

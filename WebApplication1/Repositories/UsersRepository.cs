@@ -6,32 +6,31 @@ namespace WebApplication1.Repositories;
 
 public class UsersRepository(AssistentDbContext dbContext)
 {
-    private readonly AssistentDbContext _dbContext = dbContext;
 
-    public async Task Add(UserEntity user)
+    public async Task Add(User user)
     {
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
     }
     
-    public async Task<List<UserEntity>> Get()
+    public async Task<List<User>> Get()
     {
-        return await _dbContext.Users
+        return await dbContext.Users
             .AsNoTracking()
             .ToListAsync();
     }
     
     
-    public async Task<UserEntity?> Get(long id)
+    public async Task<User?> Get(long id)
     {
-        return await _dbContext.Users.Where(a => a.TelegramId == id)
+        return await dbContext.Users.Where(a => a.TelegramId == id)
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
     
-    public async Task<bool> Update(Guid id, UserEntity newUser)
+    public async Task<bool> Update(Guid id, User newUser)
     {
-        var rows = await _dbContext.Users
+        var rows = await dbContext.Users
             .Where(a => a.Id == id)
             .ExecuteUpdateAsync(a => a
                 .SetProperty(user => user.Name, newUser.Name)
@@ -42,7 +41,7 @@ public class UsersRepository(AssistentDbContext dbContext)
     
     public async Task<bool> Delete(Guid id)
     {
-        var deleteCount = await _dbContext.Users
+        var deleteCount = await dbContext.Users
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync();
         return deleteCount > 0;

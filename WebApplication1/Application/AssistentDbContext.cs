@@ -10,10 +10,11 @@ public class AssistentDbContext : DbContext
         : base(options)
     { }
     
-    public DbSet<TicketEntity> Tickets { get; set; }
-    public DbSet<UserEntity> Users { get; set; }
-    public DbSet<ArticleEntity> Articles { get; set; }
-    public DbSet<AdminEntity> Admins { get; set; }
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Article> Articles { get; set; }
+    public DbSet<Admin> Admins { get; set; }
+    public DbSet<KnowledgeDocument> Documents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,6 +22,7 @@ public class AssistentDbContext : DbContext
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new TicketConfiguration());
         modelBuilder.ApplyConfiguration(new AdminConfiguration());
+        modelBuilder.ApplyConfiguration(new DocumentConfiguration());
         
         base.OnModelCreating(modelBuilder);
     }

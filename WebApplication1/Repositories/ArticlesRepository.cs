@@ -6,38 +6,36 @@ namespace WebApplication1.Repositories;
 
 public class ArticlesRepository(AssistentDbContext dbContext)
 {
-    private readonly AssistentDbContext _dbContext = dbContext;
-
-    public async Task Add(ArticleEntity article)
+    public async Task Add(Article article)
     {
-        _dbContext.Add(article);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Add(article);
+        await dbContext.SaveChangesAsync();
     }
     
-    public async Task AddRange(List<ArticleEntity> articles)
+    public async Task AddRange(List<Article> articles)
     {
-        await _dbContext.AddRangeAsync(articles);
-        await _dbContext.SaveChangesAsync();
+        await dbContext.AddRangeAsync(articles);
+        await dbContext.SaveChangesAsync();
     }
     
-    public async Task<List<ArticleEntity>> Get()
+    public async Task<List<Article>> Get()
     {
-        return await _dbContext.Articles
+        return await dbContext.Articles
             .AsNoTracking()
             .ToListAsync();
     }
     
     
-    public async Task<ArticleEntity?> Get(Guid id)
+    public async Task<Article?> Get(Guid id)
     {
-        return await _dbContext.Articles.Where(a => a.Id == id)
+        return await dbContext.Articles.Where(a => a.Id == id)
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
     
-    public async Task<bool> Update(Guid id, ArticleEntity newArticle)
+    public async Task<bool> Update(Guid id, Article newArticle)
     {
-        var rows = await _dbContext.Articles
+        var rows = await dbContext.Articles
             .Where(a => a.Id == id)
             .ExecuteUpdateAsync(a => a
                 .SetProperty(article => article.Title, newArticle.Title)
@@ -48,7 +46,7 @@ public class ArticlesRepository(AssistentDbContext dbContext)
     
     public async Task<bool> Delete(Guid id)
     {
-        var deleteCount = await _dbContext.Articles
+        var deleteCount = await dbContext.Articles
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync();
         return deleteCount > 0;

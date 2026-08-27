@@ -1,13 +1,13 @@
 ﻿namespace WebApplication1.Models;
 
-public class TicketEntity
+public class Ticket
 {
     public Guid Id { get; set; }
     public string Message { get; set; } = string.Empty;
     public TicketStatus Status { get; set; }
     
     public Guid UserId { get; set; }
-    public UserEntity User { get; set; } = null!;
+    public User User { get; set; } = null!;
 }
 
 public enum TicketStatus

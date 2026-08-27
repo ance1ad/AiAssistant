@@ -1,7 +1,7 @@
 ﻿
 namespace WebApplication1.Dtos;
 
-public record AdminDto(
+public record AdminResponse(
     Guid Id,
     string Username
 );

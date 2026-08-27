@@ -15,7 +15,7 @@ public class AssistantService(
         string? username,
         string message)
     {
-        UserDto user = await userService
+        UserResponse user = await userService
             .GetOrCreate(telegramId, username);
         
         var ticket = await ticketService

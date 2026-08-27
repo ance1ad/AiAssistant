@@ -6,46 +6,44 @@ namespace WebApplication1.Services;
 
 public class AdminService(AdminsRepository adminsRepository, JwtService jwtService)
 {
-    private readonly AdminsRepository _adminsRepository = adminsRepository;
-    private readonly JwtService _jwtService = jwtService;
     
-    public async Task<List<AdminDto>> GetAll()
+    public async Task<List<AdminResponse>> GetAll()
     {
-        var list = await _adminsRepository.Get();
+        var list = await adminsRepository.Get();
         return list
-            .Select(admin => new AdminDto(
+            .Select(admin => new AdminResponse(
                 admin.Id,
                 admin.Username))
             .ToList();
     }
     
     
-    public async Task<AdminDto?> Get(Guid id)
+    public async Task<AdminResponse?> Get(Guid id)
     {
-        var user = await _adminsRepository.Get(id);
+        var user = await adminsRepository.Get(id);
         if (user != null)
         {
-            return new AdminDto(user.Id, user.Username);
+            return new AdminResponse(user.Id, user.Username);
         }
         return null;
     }
     
     
-    public async Task<AdminDto> Register(RegisterAdminDto adminDto)
+    public async Task<AdminResponse> Register(RegisterAdminRequest adminRequest)
     {
         // Create hash of password
-        string hashPassword = BCrypt.Net.BCrypt.HashPassword(adminDto.Password);
+        string hashPassword = BCrypt.Net.BCrypt.HashPassword(adminRequest.Password);
         
-        var adminEntity = new AdminEntity
+        var adminEntity = new Admin
         {
             Id = Guid.NewGuid(),
-            Username = adminDto.Username,
+            Username = adminRequest.Username,
             PasswordHash = hashPassword
         };
         
-        await _adminsRepository.Add(adminEntity);
+        await adminsRepository.Add(adminEntity);
         
-        return new AdminDto
+        return new AdminResponse
         (
             adminEntity.Id,
             adminEntity.Username
@@ -53,17 +51,17 @@ public class AdminService(AdminsRepository adminsRepository, JwtService jwtServi
     }
 
 
-    public async Task<string?> Login(LoginAdminDto adminDto)
+    public async Task<string?> Login(LoginAdminRequest adminRequest)
     {
-        var admin = await _adminsRepository.GetByUsername(adminDto.Username);
+        var admin = await adminsRepository.GetByUsername(adminRequest.Username);
         if (admin == null)
             return null;
 
-        var isValid = BCrypt.Net.BCrypt.Verify(adminDto.Password, admin.PasswordHash);
+        var isValid = BCrypt.Net.BCrypt.Verify(adminRequest.Password, admin.PasswordHash);
 
         if (!isValid)
             return null;
 
-        return _jwtService.CreateToken(admin);
+        return jwtService.CreateToken(admin);
     }
 }

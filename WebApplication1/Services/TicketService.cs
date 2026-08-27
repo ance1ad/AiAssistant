@@ -9,9 +9,9 @@ public class TicketService(TicketsRepository ticketsRepository)
 {
     private readonly TicketsRepository _ticketsRepository = ticketsRepository;
 
-    public async Task<TicketDto> Create(Guid userId, string message, TicketStatus status)
+    public async Task<TicketResponse> Create(Guid userId, string message, TicketStatus status)
     {
-        var ticketEntity = new TicketEntity()
+        var ticketEntity = new Ticket()
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -21,7 +21,7 @@ public class TicketService(TicketsRepository ticketsRepository)
         
         await _ticketsRepository.Add(ticketEntity);
 
-        return new TicketDto(ticketEntity.Id, message, status);
+        return new TicketResponse(ticketEntity.Id, message, status);
     }
     
 }

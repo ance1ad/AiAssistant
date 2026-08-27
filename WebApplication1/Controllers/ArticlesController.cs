@@ -34,7 +34,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
 
     
     [HttpPost]
-    public async Task<IActionResult> PostArticle(CreateArticleDto newArticle)
+    public async Task<IActionResult> PostArticle(CreateArticleRequest newArticle)
     { 
         var createdArticle = await _articleService.Create(newArticle);
         
@@ -47,7 +47,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     
     
     [HttpPost("bulk")]
-    public async Task<IActionResult> PostArticles(List<CreateArticleDto> newArticles)
+    public async Task<IActionResult> PostArticles(List<CreateArticleRequest> newArticles)
     {
         var actions = await _articleService.CreateMany(newArticles);
         return Ok(actions);
@@ -55,7 +55,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
 
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutArticle(Guid id, UpdateArticleDto updateArticle)
+    public async Task<IActionResult> PutArticle(Guid id, UpdateArticleRequest updateArticle)
     {
         bool updated = await _articleService.Update(id, updateArticle);
     
@@ -76,6 +76,5 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
             return NoContent();
         }
         return NotFound();
-        
     }
 }

@@ -4,9 +4,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Configurations;
 
-public class UserConfiguration : IEntityTypeConfiguration<UserEntity>
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<UserEntity> builder)
+    public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(u => u.Id);
         

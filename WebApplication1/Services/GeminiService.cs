@@ -6,7 +6,7 @@ namespace WebApplication1.Services;
 
 public class GeminiService(IConfiguration configuration, HttpClient httpClient) : IAiService
 {
-    public async Task<string> GenerateAnswer(string question, List<ArticleDto> articles)
+    public async Task<string> GenerateAnswer(string question, List<ArticleResponse> articles)
     {
 
         var context = string.Join("\n\n",
@@ -44,7 +44,7 @@ public class GeminiService(IConfiguration configuration, HttpClient httpClient) 
 
         var url =
             $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
-        Console.WriteLine(url.Replace(apiKey, "HIDDEN"));
+        // Console.WriteLine(url.Replace(apiKey, "HIDDEN"));
         
         var request = new GeminiRequest
         {
@@ -73,8 +73,7 @@ public class GeminiService(IConfiguration configuration, HttpClient httpClient) 
         }
 
 
-        var result =
-            await response.Content
+        var result = await response.Content
                 .ReadFromJsonAsync<GeminiResponse>();
 
         if (result?.Candidates == null ||

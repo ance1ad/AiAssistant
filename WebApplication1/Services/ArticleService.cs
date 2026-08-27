@@ -19,11 +19,11 @@ public class ArticleService(ArticlesRepository articlesRepository)
     ];
     
     
-    public async Task<List<ArticleDto>> Get()
+    public async Task<List<ArticleResponse>> Get()
     {
         var list = await _articlesRepository.Get();
         return list
-            .Select(article => new ArticleDto (
+            .Select(article => new ArticleResponse (
                 article.Id, 
                 article.Title,  
                 article.Keywords,  
@@ -33,29 +33,29 @@ public class ArticleService(ArticlesRepository articlesRepository)
     }
     
     
-    public async Task<ArticleDto?> Get(Guid id)
+    public async Task<ArticleResponse?> Get(Guid id)
     {
         var article = await _articlesRepository.Get(id);
         if (article != null)
         {
-            return new ArticleDto(article.Id, article.Title, article.Keywords, article.Content);
+            return new ArticleResponse(article.Id, article.Title, article.Keywords, article.Content);
         }
         return null;
     }
     
     
-    public async Task<ArticleDto> Create(CreateArticleDto articleDto)
+    public async Task<ArticleResponse> Create(CreateArticleRequest articleRequest)
     {
-        var articleEntity = new ArticleEntity
+        var articleEntity = new Article
         {
             Id = Guid.NewGuid(),
-            Title = articleDto.Title,
-            Keywords = articleDto.Keywords,
-            Content = articleDto.Content
+            Title = articleRequest.Title,
+            Keywords = articleRequest.Keywords,
+            Content = articleRequest.Content
         };
         await _articlesRepository.Add(articleEntity);
         
-        return new ArticleDto
+        return new ArticleResponse
         (
             articleEntity.Id,
             articleEntity.Title,
@@ -65,9 +65,9 @@ public class ArticleService(ArticlesRepository articlesRepository)
     }
     
     
-    public async Task<List<ArticleDto>> CreateMany(List<CreateArticleDto> articles)
+    public async Task<List<ArticleResponse>> CreateMany(List<CreateArticleRequest> articles)
     {
-       var articleEntitys =  articles.Select(articleDto => new ArticleEntity{
+       var articleEntitys =  articles.Select(articleDto => new Article{
            Id = Guid.NewGuid(),
            Title = articleDto.Title,
            Keywords = articleDto.Keywords,
@@ -76,7 +76,7 @@ public class ArticleService(ArticlesRepository articlesRepository)
        
        await _articlesRepository.AddRange(articleEntitys);
        
-       return articleEntitys.Select(a => new ArticleDto(
+       return articleEntitys.Select(a => new ArticleResponse(
            a.Id, 
            a.Title, 
            a.Keywords, 
@@ -85,12 +85,12 @@ public class ArticleService(ArticlesRepository articlesRepository)
     }
     
     
-    public Task<bool> Update(Guid id, UpdateArticleDto articleDto)
+    public Task<bool> Update(Guid id, UpdateArticleRequest articleRequest)
     {
-        var articleEntity = new ArticleEntity { 
-            Title = articleDto.Title,
-            Keywords = articleDto.Keywords,
-            Content = articleDto.Content
+        var articleEntity = new Article { 
+            Title = articleRequest.Title,
+            Keywords = articleRequest.Keywords,
+            Content = articleRequest.Content
         };
         return _articlesRepository.Update(id, articleEntity);
     }
@@ -102,7 +102,7 @@ public class ArticleService(ArticlesRepository articlesRepository)
     }
 
     
-    public async Task<List<ArticleDto>> FindRelevantArticles(string message)
+    public async Task<List<ArticleResponse>> FindRelevantArticles(string message)
     {
         var words = ExtractWords(message);
         
@@ -119,7 +119,7 @@ public class ArticleService(ArticlesRepository articlesRepository)
             .Take(5);
 
 
-        return result.Select(a => new ArticleDto(
+        return result.Select(a => new ArticleResponse(
             a.Article.Id,
             a.Article.Title,
             a.Article.Keywords,
@@ -127,7 +127,7 @@ public class ArticleService(ArticlesRepository articlesRepository)
         )).ToList();
     }
 
-    private static int CalculateScore(string[] words, ArticleEntity article)
+    private static int CalculateScore(string[] words, Article article)
     {
         return words.Sum(word =>
         {

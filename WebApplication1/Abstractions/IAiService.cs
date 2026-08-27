@@ -6,5 +6,5 @@ public interface IAiService
 {
     Task<string> GenerateAnswer(
         string question,
-        List<ArticleDto> articles);
+        List<ArticleResponse> articles);
 }

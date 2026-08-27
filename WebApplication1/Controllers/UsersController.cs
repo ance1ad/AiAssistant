@@ -44,7 +44,7 @@ public class UsersController(UserService userService) : ControllerBase
 
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutUser(Guid id, UpdateUserDto updateUser)
+    public async Task<IActionResult> PutUser(Guid id, UpdateUserRequest updateUser)
     {
         bool updated = await _userService.Update(id, updateUser);
     

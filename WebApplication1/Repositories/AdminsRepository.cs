@@ -8,46 +8,40 @@ namespace WebApplication1.Repositories;
 
 public class AdminsRepository(AssistentDbContext dbContext)
 {
-    private readonly AssistentDbContext _dbContext = dbContext;
 
-    public async Task<AdminEntity> Add(AdminEntity admin)
+    public async Task<Admin> Add(Admin admin)
     {
-        DbSet<AdminEntity> admins = _dbContext.Admins;
-        _dbContext.Admins.Add(admin);
-        await _dbContext.SaveChangesAsync();
+        DbSet<Admin> admins = dbContext.Admins;
+        dbContext.Admins.Add(admin);
+        await dbContext.SaveChangesAsync();
         return admin;
     }
-
     
-    
-    public async Task<List<AdminEntity>> Get()
+    public async Task<List<Admin>> Get()
     {
-        return await _dbContext.Admins
+        return await dbContext.Admins
             .AsNoTracking()
             .ToListAsync();
     }
     
-    
-    public async Task<AdminEntity?> Get(Guid id)
+    public async Task<Admin?> Get(Guid id)
     {
-        return await _dbContext.Admins.Where(a => a.Id == id)
+        return await dbContext.Admins.Where(a => a.Id == id)
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
     
-    
     public async Task<bool> Delete(Guid id)
     {
-        var deleteCount = await _dbContext.Admins
+        var deleteCount = await dbContext.Admins
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync();
         return deleteCount > 0;
     }
 
-
-    public async Task<AdminEntity?> GetByUsername(string username)
+    public async Task<Admin?> GetByUsername(string username)
     {
-        var admin = await _dbContext.Admins
+        var admin = await dbContext.Admins
             .Where(a => a.Username == username)
             .AsNoTracking()
             .FirstOrDefaultAsync();

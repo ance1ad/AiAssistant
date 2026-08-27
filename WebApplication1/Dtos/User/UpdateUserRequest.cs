@@ -1,6 +1,6 @@
 ﻿namespace WebApplication1.Dtos;
 
-public record UpdateUserDto(
+public record UpdateUserRequest(
     string Name, 
     long TelegramId
 );
