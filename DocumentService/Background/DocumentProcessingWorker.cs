@@ -1,13 +1,12 @@
-﻿using WebApplication1.Models;
-using WebApplication1.Services.Document;
+﻿using DocumentService.Services;
 
-namespace WebApplication1.Background;
+namespace DocumentService.Background;
 
 public class DocumentProcessingWorker(IServiceScopeFactory scopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        int secondsToCheck = 4;
+        int secondsToCheck = 15;
         while (!stoppingToken.IsCancellationRequested)
         {
             Console.WriteLine($"Worker running at: {DateTime.Now}");
@@ -18,7 +17,11 @@ public class DocumentProcessingWorker(IServiceScopeFactory scopeFactory) : Backg
             
             
             // Найти документ ...
-            await documentProcessor.ProcessAsync(new KnowledgeDocument(), stoppingToken);
+            var doc = await documentProcessor.GetPendingDocument(stoppingToken);
+            if (doc != null)
+            {
+                await documentProcessor.ProcessAsync(doc, stoppingToken);
+            }
             
             await Task.Delay(1000 * secondsToCheck, stoppingToken);
         }

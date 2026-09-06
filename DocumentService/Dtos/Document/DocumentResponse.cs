@@ -1,6 +1,6 @@
-﻿using WebApplication1.Models;
+﻿using DocumentService.Models;
 
-namespace WebApplication1.Dtos.Document;
+namespace DocumentService.Dtos.Document;
 
 public record DocumentResponse(
     Guid Id,

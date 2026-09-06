@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApplication1.Application;
@@ -11,9 +12,11 @@ using WebApplication1.Application;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AssistentDbContext))]
-    partial class AssistentDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260827203020_AddDocumentText")]
+    partial class AddDocumentText
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,32 +70,6 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Articles");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.DocumentChunk", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ChunkIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("KnowledgeDocumentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KnowledgeDocumentId");
-
-                    b.HasIndex("ChunkIndex", "KnowledgeDocumentId")
-                        .IsUnique();
-
-                    b.ToTable("Chunks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.KnowledgeDocument", b =>
@@ -182,17 +159,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.DocumentChunk", b =>
-                {
-                    b.HasOne("WebApplication1.Models.KnowledgeDocument", "KnowledgeDocument")
-                        .WithMany("Chunks")
-                        .HasForeignKey("KnowledgeDocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KnowledgeDocument");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.Ticket", b =>
                 {
                     b.HasOne("WebApplication1.Models.User", "User")
@@ -202,11 +168,6 @@ namespace WebApplication1.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.KnowledgeDocument", b =>
-                {
-                    b.Navigation("Chunks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

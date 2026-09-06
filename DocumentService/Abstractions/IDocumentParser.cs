@@ -1,9 +1,11 @@
-﻿using WebApplication1.Models;
+﻿using DocumentService.Models;
 
-namespace WebApplication1.Interfaces;
+namespace DocumentService.Abstractions;
 
 public interface IDocumentParser
 {
+    bool CanParse(string contentType);
+    
     Task<string> ExtractTextAsync(
         KnowledgeDocument knowledgeDocument, 
         CancellationToken cancellationToken

@@ -1,8 +1,8 @@
-﻿using WebApplication1.Dtos.Document;
-using WebApplication1.Models;
-using WebApplication1.Repositories;
+﻿using DocumentService.Dtos.Document;
+using DocumentService.Models;
+using DocumentService.Repositories;
 
-namespace WebApplication1.Services;
+namespace DocumentService.Services;
 
 public class DocumentService(DocumentRepository repository)
 {
@@ -22,8 +22,7 @@ public class DocumentService(DocumentRepository repository)
         
         await file.CopyToAsync(stream);
         
-        // 2. В постгрес отдать KnowledgeDocument:
-        var document = new Models.KnowledgeDocument()
+        var document = new KnowledgeDocument()
         {
             Id = docId,
             FileName = file.FileName,

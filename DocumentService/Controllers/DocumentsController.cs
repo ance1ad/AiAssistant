@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Services;
 
-namespace WebApplication1.Controllers;
+namespace DocumentService.Controllers;
 
 [ApiController]
 [Route("documents")]
-public class DocumentsController(DocumentService documentService) : ControllerBase
+public class DocumentsController(Services.DocumentService documentService) : ControllerBase
 {
     private static readonly HashSet<string> AllowedContentTypes =
     [

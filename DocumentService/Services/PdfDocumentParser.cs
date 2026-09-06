@@ -1,10 +1,13 @@
-﻿using WebApplication1.Interfaces;
-using WebApplication1.Models;
+﻿using DocumentService.Abstractions;
+using DocumentService.Models;
 
-namespace WebApplication1.DocumentParsing;
+namespace DocumentService.Services;
 
 public class PdfDocumentParser : IDocumentParser
 {
+    public bool CanParse(string contentType)
+        => contentType == "application/pdf";
+
     public Task<string> ExtractTextAsync(KnowledgeDocument knowledgeDocument, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
