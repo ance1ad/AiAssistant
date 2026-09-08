@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebAppli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentService", "DocumentService\DocumentService.csproj", "{CF85DC55-A239-474D-80C8-8E6433508B5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingService", "EmbeddingService\EmbeddingService.csproj", "{83C74859-1180-408B-8481-9C35738CD657}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{CF85DC55-A239-474D-80C8-8E6433508B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF85DC55-A239-474D-80C8-8E6433508B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF85DC55-A239-474D-80C8-8E6433508B5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83C74859-1180-408B-8481-9C35738CD657}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83C74859-1180-408B-8481-9C35738CD657}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83C74859-1180-408B-8481-9C35738CD657}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83C74859-1180-408B-8481-9C35738CD657}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

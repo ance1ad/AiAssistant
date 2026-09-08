@@ -1,6 +1,7 @@
 using DocumentService.Abstractions;
 using DocumentService.Application;
 using DocumentService.Background;
+using DocumentService.Messaging;
 using DocumentService.Repositories;
 using DocumentService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,9 @@ builder.Services.AddScoped<IDocumentParser, PdfDocumentParser>();
 builder.Services.AddScoped<ITextChunker, DefaultChunker>();
 builder.Services.AddScoped<ChunkRepository>();
 builder.Services.AddScoped<ChunkingService>();
+
+// Broker
+builder.Services.AddSingleton<RabbitMqPublisher>();
 
 var app = builder.Build();
 

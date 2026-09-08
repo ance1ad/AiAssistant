@@ -18,12 +18,16 @@ public class DocumentProcessingWorker(IServiceScopeFactory scopeFactory) : Backg
             
             // Найти документ ...
             var doc = await documentProcessor.GetPendingDocument(stoppingToken);
+            
             if (doc != null)
             {
                 await documentProcessor.ProcessAsync(doc, stoppingToken);
             }
             
-            await Task.Delay(1000 * secondsToCheck, stoppingToken);
+            await Task.Delay(
+                TimeSpan.FromSeconds(secondsToCheck),
+                stoppingToken
+            );
         }
     }
 }
