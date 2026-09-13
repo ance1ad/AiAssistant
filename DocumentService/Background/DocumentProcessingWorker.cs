@@ -15,7 +15,6 @@ public class DocumentProcessingWorker(IServiceScopeFactory scopeFactory) : Backg
             var documentProcessor = scope.ServiceProvider
                 .GetRequiredService<DocumentProcessor>();
             
-            
             // Найти документ ...
             var doc = await documentProcessor.GetPendingDocument(stoppingToken);
             

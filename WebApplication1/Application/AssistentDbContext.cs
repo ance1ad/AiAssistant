@@ -10,10 +10,10 @@ public class AssistentDbContext : DbContext
         : base(options)
     { }
     
-    public DbSet<Ticket> Tickets { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<Article> Articles { get; set; }
-    public DbSet<Admin> Admins { get; set; }
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Article> Articles => Set<Article>();
+    public DbSet<Admin> Admins => Set<Admin>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

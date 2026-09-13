@@ -1,25 +1,19 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
 namespace DocumentService.Messaging;
 
 public class RabbitMqPublisher
 {
-    private readonly IConnection _connection;
-    private readonly IChannel _channel;
+    private readonly RabbitMqConnectionProvider _connectionProvider;
+    private readonly RabbitMqOptions _options;
     
-    public RabbitMqPublisher()
+    public RabbitMqPublisher(IOptions<RabbitMqOptions> options, RabbitMqConnectionProvider connectionProvider)
     {
-        var factory = new ConnectionFactory()
-        {
-            HostName = "localhost",
-            UserName = "guest",
-            Password = "guest"
-        };
-        
-        _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
-        _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+        _connectionProvider = connectionProvider;
+        _options = options.Value;
     }
 
     public async Task PublishAsync<T>(T message)
@@ -27,9 +21,11 @@ public class RabbitMqPublisher
         var json = JsonSerializer.Serialize(message);
         var body = Encoding.UTF8.GetBytes(json);
 
-        await _channel.BasicPublishAsync(
-            exchange: "document-events",
-            routingKey: "document.chunks.created",
+        var channel = await _connectionProvider.GetChannelAsync(); 
+        
+        await channel.BasicPublishAsync(
+            exchange: _options.ExchangeName,
+            routingKey: _options.RoutingKey,
             body: body);
     }
 }

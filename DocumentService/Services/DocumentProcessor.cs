@@ -1,6 +1,8 @@
 ﻿using DocumentService.Abstractions;
+using DocumentService.Messaging;
 using DocumentService.Models;
 using DocumentService.Repositories;
+using Shared.Contracts.Events;
 
 namespace DocumentService.Services;
 
@@ -8,9 +10,12 @@ public class DocumentProcessor(
     DocumentRepository documentRepository, 
     DocumentParserResolver documentParserResolver,
     ITextChunker textChunker, 
-    ChunkingService chunkingService)
+    ChunkingService chunkingService,
+    RabbitMqPublisher publisher)
 {
-    public async Task ProcessAsync(KnowledgeDocument knowledgeDocument, CancellationToken cancellationToken)
+    public async Task ProcessAsync(
+        KnowledgeDocument knowledgeDocument, 
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -27,6 +32,9 @@ public class DocumentProcessor(
             
             await documentRepository
                 .SetDocumentComplete(knowledgeDocument.Id, text, cancellationToken);
+            
+            // Уведомить о готовности чанков
+            await publisher.PublishAsync(new DocumentChunksCreatedEvent(knowledgeDocument.Id));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

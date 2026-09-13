@@ -11,7 +11,6 @@ public class AdminsRepository(AssistentDbContext dbContext)
 
     public async Task<Admin> Add(Admin admin)
     {
-        DbSet<Admin> admins = dbContext.Admins;
         dbContext.Admins.Add(admin);
         await dbContext.SaveChangesAsync();
         return admin;

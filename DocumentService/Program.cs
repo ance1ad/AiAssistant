@@ -39,6 +39,12 @@ builder.Services.AddScoped<ChunkingService>();
 
 // Broker
 builder.Services.AddSingleton<RabbitMqPublisher>();
+builder.Services.AddSingleton<RabbitMqConnectionProvider>();
+
+builder.Services.Configure<RabbitMqOptions>(
+    builder.Configuration.GetSection("RabbitMq"));
+
+
 
 var app = builder.Build();
 

@@ -1,59 +1,61 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.Contracts.Events;
+using Shared.Messaging;
 
-namespace Shared.Messaging;
+namespace EmbeddingService.Messaging;
 
 public class RabbitMqConsumer : BackgroundService
 {
-    private readonly IConnection _connection;
-    private readonly IChannel _channel;
+    private readonly RabbitMqConnectionProvider _connectionProvider;
+    private readonly RabbitMqOptions _options;
     
-    
-    public RabbitMqConsumer()
+    public RabbitMqConsumer(IOptions<RabbitMqOptions> options, RabbitMqConnectionProvider connectionProvider)
     {
-        var factory = new ConnectionFactory()
-        {
-            HostName = "localhost",
-            UserName = "guest",
-            Password = "guest"
-        };
-        
-        _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
-        _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+        _connectionProvider = connectionProvider;
+        _options = options.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _channel.QueueDeclareAsync(
-            queue: "embedding-service",
+        var channel = await _connectionProvider.GetChannelAsync();
+        
+        await channel.QueueDeclareAsync(
+            queue: _options.QueueName,
             durable: true,
             exclusive: false,
             autoDelete: false, 
             cancellationToken: stoppingToken);
 
-        var consumer = new AsyncEventingBasicConsumer(_channel);
+        var consumer = new AsyncEventingBasicConsumer(channel);
 
-        consumer.ReceivedAsync += async (_, eventArgs) =>
-        {
-            var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+        consumer.ReceivedAsync += HandleMessageAsync;
 
-            var message = JsonSerializer.Deserialize<DocumentChunksCreatedEvent>(json);
-
-            Console.WriteLine("Получено событие: {0}", message?.DocumentId);
-            
-            await _channel.BasicAckAsync(
-                deliveryTag: eventArgs.DeliveryTag, 
-                multiple: false, cancellationToken: stoppingToken);
-        };
-
-        await _channel.BasicConsumeAsync(
-            queue: "embedding-service",
+        await channel.BasicConsumeAsync(
+            queue: _options.QueueName,
             autoAck: false,
-            consumer: consumer, cancellationToken: stoppingToken);
+            consumer: consumer, 
+            cancellationToken: stoppingToken);
         
         await Task.Delay(Timeout.Infinite, stoppingToken);
     }
+
+    private async Task HandleMessageAsync(object sender, BasicDeliverEventArgs eventArgs)
+    {
+        var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+
+        var message = JsonSerializer.Deserialize<DocumentChunksCreatedEvent>(json);
+
+        var channel = await _connectionProvider.GetChannelAsync();
+        
+        Console.WriteLine("Получено событие: {0}", message?.DocumentId);
+            
+        await channel.BasicAckAsync(
+            deliveryTag: eventArgs.DeliveryTag, 
+            multiple: false);
+    }
+    
 }
