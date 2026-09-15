@@ -5,7 +5,7 @@ namespace DocumentService.Services;
 
 public class ChunkingService(ChunkRepository repository)
 {
-    public async Task AddChunksRange(IReadOnlyList<string> splitedText, KnowledgeDocument document, CancellationToken token)
+    public async Task<List<DocumentChunk>> AddChunksRange(IReadOnlyList<string> splitedText, KnowledgeDocument document, CancellationToken token)
     {
         var chunksEntity = new List<DocumentChunk>();
         for (var index = 0; index < splitedText.Count; index++)
@@ -20,5 +20,6 @@ public class ChunkingService(ChunkRepository repository)
             });
         }
         await repository.AddChunksRange(chunksEntity, token);
+        return chunksEntity;
     }
 }

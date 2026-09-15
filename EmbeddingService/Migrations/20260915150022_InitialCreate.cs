@@ -1,27 +1,32 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Pgvector;
 
 #nullable disable
 
-namespace WebApplication1.Migrations
+namespace EmbeddingService.Migrations
 {
     /// <inheritdoc />
-    public partial class AdminEntrance : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:vector", ",,");
+
             migrationBuilder.CreateTable(
-                name: "Admins",
+                name: "Embeddings",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Username = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    PasswordHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false)
+                    ResourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SourceType = table.Column<string>(type: "text", nullable: false),
+                    Vector = table.Column<Vector>(type: "vector(768)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Admins", x => x.Id);
+                    table.PrimaryKey("PK_Embeddings", x => x.Id);
                 });
         }
 
@@ -29,7 +34,7 @@ namespace WebApplication1.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Admins");
+                name: "Embeddings");
         }
     }
 }

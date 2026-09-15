@@ -6,14 +6,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Pgvector;
 
 #nullable disable
 
 namespace EmbeddingService.Migrations
 {
     [DbContext(typeof(EmbeddingDbContext))]
-    [Migration("20260913183257_InitialEmbedding")]
-    partial class InitialEmbedding
+    [Migration("20260915150022_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,30 +24,28 @@ namespace EmbeddingService.Migrations
                 .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("EmbeddingService.Models.DocumentChunk", b =>
+            modelBuilder.Entity("EmbeddingService.Models.Embedding", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("ChunkIndex")
-                        .HasColumnType("integer");
-
-                    b.PrimitiveCollection<float[]>("Embedding")
-                        .HasColumnType("real[]");
-
-                    b.Property<Guid>("KnowledgeDocumentId")
+                    b.Property<Guid>("ResourceId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Text")
+                    b.Property<string>("SourceType")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Vector>("Vector")
+                        .HasColumnType("vector(768)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("DocumentChunks", (string)null);
+                    b.ToTable("Embeddings");
                 });
 #pragma warning restore 612, 618
         }

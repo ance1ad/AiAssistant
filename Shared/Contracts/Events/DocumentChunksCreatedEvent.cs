@@ -1,5 +1,9 @@
-﻿namespace Shared.Contracts.Events;
+﻿using DocumentService.Dtos;
+
+namespace Shared.Contracts.Events;
 
 public record DocumentChunksCreatedEvent(
-    Guid DocumentId
+    Guid SourceId,
+    SourceType SourceType,
+    IReadOnlyList<DocumentChunkData> Chunks
 );

@@ -69,71 +69,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.DocumentChunk", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ChunkIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("KnowledgeDocumentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KnowledgeDocumentId");
-
-                    b.HasIndex("ChunkIndex", "KnowledgeDocumentId")
-                        .IsUnique();
-
-                    b.ToTable("Chunks");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.KnowledgeDocument", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ProcessedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Documents");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -182,17 +117,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.DocumentChunk", b =>
-                {
-                    b.HasOne("WebApplication1.Models.KnowledgeDocument", "KnowledgeDocument")
-                        .WithMany("Chunks")
-                        .HasForeignKey("KnowledgeDocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KnowledgeDocument");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.Ticket", b =>
                 {
                     b.HasOne("WebApplication1.Models.User", "User")
@@ -202,11 +126,6 @@ namespace WebApplication1.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.KnowledgeDocument", b =>
-                {
-                    b.Navigation("Chunks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

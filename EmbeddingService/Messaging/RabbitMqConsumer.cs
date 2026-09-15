@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using EmbeddingService.Services;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -8,20 +9,17 @@ using Shared.Messaging;
 
 namespace EmbeddingService.Messaging;
 
-public class RabbitMqConsumer : BackgroundService
+public class RabbitMqConsumer(
+    IOptions<RabbitMqOptions> options, 
+    RabbitMqConnectionProvider connectionProvider,
+    IServiceScopeFactory serviceScopeFactory
+    )  : BackgroundService
 {
-    private readonly RabbitMqConnectionProvider _connectionProvider;
-    private readonly RabbitMqOptions _options;
-    
-    public RabbitMqConsumer(IOptions<RabbitMqOptions> options, RabbitMqConnectionProvider connectionProvider)
-    {
-        _connectionProvider = connectionProvider;
-        _options = options.Value;
-    }
+    private readonly RabbitMqOptions _options = options.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var channel = await _connectionProvider.GetChannelAsync();
+        var channel = await connectionProvider.GetChannelAsync();
         
         await channel.QueueDeclareAsync(
             queue: _options.QueueName,
@@ -49,10 +47,16 @@ public class RabbitMqConsumer : BackgroundService
 
         var message = JsonSerializer.Deserialize<DocumentChunksCreatedEvent>(json);
 
-        var channel = await _connectionProvider.GetChannelAsync();
+        var channel = await connectionProvider.GetChannelAsync();
         
-        Console.WriteLine("Получено событие: {0}", message?.DocumentId);
-            
+        Console.WriteLine("Получено событие: {0}, количество чанков {1}", message?.SourceId, message?.Chunks.Count);
+
+        var scope = serviceScopeFactory.CreateScope();
+        var embeddingCreator = scope.ServiceProvider.GetRequiredService<EmbeddingCreator>();
+        
+        if (message != null) 
+            await embeddingCreator.CreateVector(message);
+
         await channel.BasicAckAsync(
             deliveryTag: eventArgs.DeliveryTag, 
             multiple: false);

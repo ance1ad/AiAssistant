@@ -9,18 +9,19 @@ public class EmbeddingDbContext : DbContext
     : base(options)
     { }   
     
-    public DbSet<DocumentChunk> Chunks => Set<DocumentChunk>();
+    public DbSet<Embedding> Embeddings => Set<Embedding>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("vector");
-
-        // Указываем что это не новая таблица
-        modelBuilder.Entity<DocumentChunk>()
-            .ToTable("Chunks");
         
-        modelBuilder.Entity<DocumentChunk>()
-            .Property(x => x.Embedding)
+        modelBuilder.Entity<Embedding>()
+            .Property(x => x.Vector)
             .HasColumnType("vector(768)");
+        
+        modelBuilder.Entity<Embedding>()
+            .Property(x => x.SourceType)
+            .IsRequired()
+            .HasConversion<string>();
     }
 }

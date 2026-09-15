@@ -1,4 +1,5 @@
 ﻿using DocumentService.Abstractions;
+using DocumentService.Dtos;
 using DocumentService.Messaging;
 using DocumentService.Models;
 using DocumentService.Repositories;
@@ -27,14 +28,22 @@ public class DocumentProcessor(
             
             var parsingText = textChunker.Parse(text);
 
-            await chunkingService
+            var chunks = await chunkingService
                 .AddChunksRange(parsingText, knowledgeDocument, cancellationToken);
+
+            var chunksData = chunks
+                .Select(x => new DocumentChunkData(
+                    x.Id,
+                    x.ChunkIndex,
+                    x.Text
+                )).ToList();
+            
+            // Передать чанки
+            await publisher.PublishAsync(new DocumentChunksCreatedEvent(
+                knowledgeDocument.Id, SourceType.Document, chunksData));
             
             await documentRepository
                 .SetDocumentComplete(knowledgeDocument.Id, text, cancellationToken);
-            
-            // Уведомить о готовности чанков
-            await publisher.PublishAsync(new DocumentChunksCreatedEvent(knowledgeDocument.Id));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

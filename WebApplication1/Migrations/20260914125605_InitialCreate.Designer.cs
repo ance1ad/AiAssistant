@@ -12,8 +12,8 @@ using WebApplication1.Application;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AssistentDbContext))]
-    [Migration("20260726131028_changeTelegramData")]
-    partial class changeTelegramData
+    [Migration("20260914125605_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,28 @@ namespace WebApplication1.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("WebApplication1.Models.ArticleEntity", b =>
+            modelBuilder.Entity("WebApplication1.Models.Admin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Admins");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Article", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,6 +56,11 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Keywords")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -46,7 +72,7 @@ namespace WebApplication1.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.TicketEntity", b =>
+            modelBuilder.Entity("WebApplication1.Models.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -70,7 +96,7 @@ namespace WebApplication1.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.UserEntity", b =>
+            modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -94,9 +120,9 @@ namespace WebApplication1.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.TicketEntity", b =>
+            modelBuilder.Entity("WebApplication1.Models.Ticket", b =>
                 {
-                    b.HasOne("WebApplication1.Models.UserEntity", "User")
+                    b.HasOne("WebApplication1.Models.User", "User")
                         .WithMany("Tickets")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -105,7 +131,7 @@ namespace WebApplication1.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.UserEntity", b =>
+            modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
                     b.Navigation("Tickets");
                 });

@@ -1,3 +1,4 @@
+using EmbeddingService.Abstractions;
 using EmbeddingService.Application;
 using EmbeddingService.Messaging;
 using EmbeddingService.Repositories;
@@ -9,11 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
 
-
 builder.Services.AddDbContext<EmbeddingDbContext>(options =>
 {
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("AssistentDbContext"),
+        configuration.GetConnectionString("AssistentDbContext"),
         npgsqlOptions =>
         {
             npgsqlOptions.UseVector();
@@ -32,6 +32,15 @@ builder.Services.Configure<RabbitMqOptions>(
 // Embedding logic
 builder.Services.AddScoped<EmbeddingCreator>();
 builder.Services.AddScoped<EmbeddingRepository>();
+
+builder.Services.AddHttpClient<IEmbeddingService, GeminiEmbeddingService>((serviceProvider, client) =>
+{
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    
+    var apiKey = configuration["Gemini:ApiKey"];
+
+    client.DefaultRequestHeaders.Add("x-goog-api-key", apiKey);
+});
 
 var app = builder.Build();
 

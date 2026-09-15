@@ -24,28 +24,25 @@ namespace EmbeddingService.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("EmbeddingService.Models.Chunk", b =>
+            modelBuilder.Entity("EmbeddingService.Models.Embedding", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("ChunkIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<Vector>("Embedding")
-                        .HasColumnType("vector(768)");
-
-                    b.Property<Guid>("KnowledgeDocumentId")
+                    b.Property<Guid>("ResourceId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Text")
+                    b.Property<string>("SourceType")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Vector>("Vector")
+                        .HasColumnType("vector(768)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Chunks", (string)null);
+                    b.ToTable("Embeddings");
                 });
 #pragma warning restore 612, 618
         }
