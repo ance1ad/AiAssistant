@@ -1,9 +1,9 @@
 ﻿using DocumentService.Abstractions;
 using DocumentService.Dtos;
-using DocumentService.Messaging;
 using DocumentService.Models;
 using DocumentService.Repositories;
 using Shared.Contracts.Events;
+using Shared.Messaging;
 
 namespace DocumentService.Services;
 
@@ -32,18 +32,18 @@ public class DocumentProcessor(
                 .AddChunksRange(parsingText, knowledgeDocument, cancellationToken);
 
             var chunksData = chunks
-                .Select(x => new DocumentChunkData(
+                .Select(x => new TextChunkData(
                     x.Id,
                     x.ChunkIndex,
                     x.Text
                 )).ToList();
             
             // Передать чанки
-            await publisher.PublishAsync(new DocumentChunksCreatedEvent(
-                knowledgeDocument.Id, SourceType.Document, chunksData));
+            await publisher.PublishAsync(new TextChunksPreparedEvent(
+                knowledgeDocument.Id, SourceType.Document, chunksData), "text.chunks.prepared");
             
             await documentRepository
-                .SetDocumentComplete(knowledgeDocument.Id, text, cancellationToken);
+                .SetDocumentProcessed(knowledgeDocument.Id, text, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

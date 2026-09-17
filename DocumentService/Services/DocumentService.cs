@@ -1,6 +1,7 @@
-﻿using DocumentService.Dtos.Document;
+﻿using DocumentService.Dtos;
 using DocumentService.Models;
 using DocumentService.Repositories;
+using Shared.Contracts.Events;
 
 namespace DocumentService.Services;
 
@@ -28,7 +29,7 @@ public class DocumentService(DocumentRepository repository)
             FileName = file.FileName,
             FilePath = storagePath,
             ContentType = file.ContentType,
-            Status = DocumentStatus.Pending,
+            Status = ProcessingStatus.Pending,
             CreatedAt = DateTime.UtcNow,
         };
 

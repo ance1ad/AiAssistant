@@ -1,3 +1,4 @@
+using DocumentService.Messaging;
 using EmbeddingService.Abstractions;
 using EmbeddingService.Application;
 using EmbeddingService.Messaging;
@@ -22,9 +23,8 @@ builder.Services.AddDbContext<EmbeddingDbContext>(options =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddHostedService<RabbitMqConsumer>();
-
-builder.Services.AddSingleton<RabbitMqConnectionProvider>();
+builder.Services.AddHostedService<EmbeddingConsumer>();
+builder.Services.AddSingleton<RabbitMqConsumerInitializer>();
 
 builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection("RabbitMq"));

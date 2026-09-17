@@ -1,6 +1,7 @@
 ﻿using DocumentService.Application;
 using DocumentService.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.Contracts.Events;
 
 namespace DocumentService.Repositories;
 
@@ -16,7 +17,7 @@ public class DocumentRepository(DocumentDbContext dbContext)
     {
         var doc = await dbContext.Documents
             .FirstOrDefaultAsync(
-                d => d.Status == DocumentStatus.Pending, 
+                d => d.Status == ProcessingStatus.Pending, 
                 cancellationToken: token
             );
         
@@ -28,17 +29,25 @@ public class DocumentRepository(DocumentDbContext dbContext)
         await dbContext.Documents
             .Where(d => d.Id == id)
             .ExecuteUpdateAsync(d => d
-                .SetProperty(doc => doc.Status, DocumentStatus.Processing), cancellationToken: token);
+                .SetProperty(doc => doc.Status, ProcessingStatus.Processing), cancellationToken: token);
     }
     
-    public async Task SetDocumentComplete(Guid id, string text, CancellationToken token)
+    public async Task SetDocumentProcessed(Guid id, string text, CancellationToken token)
     {
         await dbContext.Documents
             .Where(d => d.Id == id)
             .ExecuteUpdateAsync(d => d
-                .SetProperty(doc => doc.Status, DocumentStatus.Complete)
+                .SetProperty(doc => doc.Status, ProcessingStatus.Processing)
                 .SetProperty(doc => doc.ProcessedAt, DateTime.UtcNow)
                 .SetProperty(doc => doc.Text, text), cancellationToken: token);
+    }
+    
+    public async Task SetDocumentStatus(Guid id, ProcessingStatus status)
+    {
+        await dbContext.Documents
+            .Where(d => d.Id == id)
+            .ExecuteUpdateAsync(d => d
+                .SetProperty(doc => doc.Status, status));
     }
     
     public async Task SetDocumentError(Guid id, string error, CancellationToken token)
@@ -46,7 +55,7 @@ public class DocumentRepository(DocumentDbContext dbContext)
         await dbContext.Documents
             .Where(d => d.Id == id)
             .ExecuteUpdateAsync(d => d
-                .SetProperty(doc => doc.Status, DocumentStatus.Error)
+                .SetProperty(doc => doc.Status, ProcessingStatus.Error)
                 .SetProperty(doc => doc.ErrorMessage, error)
                 .SetProperty(doc => doc.ProcessedAt, DateTime.UtcNow), cancellationToken: token);
     }

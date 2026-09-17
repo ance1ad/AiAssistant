@@ -45,7 +45,7 @@ namespace DocumentService.Migrations
                     b.HasIndex("ChunkIndex", "KnowledgeDocumentId")
                         .IsUnique();
 
-                    b.ToTable("Chunks");
+                    b.ToTable("Chunks", (string)null);
                 });
 
             modelBuilder.Entity("DocumentService.Models.KnowledgeDocument", b =>
@@ -84,7 +84,7 @@ namespace DocumentService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Documents");
+                    b.ToTable("Documents", (string)null);
                 });
 
             modelBuilder.Entity("DocumentService.Models.DocumentChunk", b =>

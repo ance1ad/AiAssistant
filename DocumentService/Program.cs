@@ -5,6 +5,7 @@ using DocumentService.Messaging;
 using DocumentService.Repositories;
 using DocumentService.Services;
 using Microsoft.EntityFrameworkCore;
+using Shared.Messaging;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,8 +23,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<DocumentService.Services.DocumentService>();
 builder.Services.AddScoped<DocumentRepository>();
 
-builder.Services.AddHostedService<DocumentProcessingWorker>();
-
 builder.Services.AddScoped<DocumentProcessor>();
 
 builder.Services.AddScoped<DocumentParserResolver>();
@@ -40,11 +39,14 @@ builder.Services.AddScoped<ChunkingService>();
 // Broker
 builder.Services.AddSingleton<RabbitMqPublisher>();
 builder.Services.AddSingleton<RabbitMqConnectionProvider>();
+builder.Services.AddSingleton<RabbitMqConsumerInitializer>();
 
 builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection("RabbitMq"));
 
-
+// Background
+builder.Services.AddHostedService<DocumentProcessingWorker>();
+builder.Services.AddHostedService<DocumentEmbeddingConsumer>();
 
 var app = builder.Build();
 

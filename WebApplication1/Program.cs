@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Shared.Messaging;
 using WebApplication1.Application;
 using WebApplication1.Interfaces;
+using WebApplication1.Messaging;
 using WebApplication1.Repositories;
 using WebApplication1.Services;
 using WebApplication1.Telegram;
@@ -63,7 +65,9 @@ builder.Services.AddSingleton<JwtService>();
 builder.Services.AddSingleton<TelegramBotService>();
 builder.Services.AddSingleton<TelegramUpdateHandler>();
 
-
+// Backround service / Consumer
+builder.Services.AddHostedService<ArticleEmbeddingConsumer>();
+builder.Services.AddSingleton<RabbitMqConsumerInitializer>();
 
 
 builder.Services.AddCors(options =>

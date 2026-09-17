@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Shared.Contracts.Events;
 
 namespace WebApplication1.Dtos;
 

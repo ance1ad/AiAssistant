@@ -2,8 +2,7 @@
 
 namespace DocumentService.Dtos;
 
-public record DocumentResponse(
+public record EmbeddingCompletedEvent(
     Guid Id,
-    string FileName,
-    ProcessingStatus Status
+    SourceType SourceType
 );

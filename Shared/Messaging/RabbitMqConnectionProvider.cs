@@ -1,8 +1,7 @@
-﻿using EmbeddingService.Messaging;
+﻿using RabbitMQ.Client;
 using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
 
-namespace Shared.Messaging;
+namespace DocumentService.Messaging;
 
 public class RabbitMqConnectionProvider
 {
@@ -10,7 +9,6 @@ public class RabbitMqConnectionProvider
     private IConnection? _connection; 
     private IChannel? _channel;
     private readonly ConnectionFactory _factory;
-    
     
     public RabbitMqConnectionProvider(IOptions<RabbitMqOptions> options)
     {

@@ -9,7 +9,7 @@ public class DocumentProcessingWorker(IServiceScopeFactory scopeFactory) : Backg
         int secondsToCheck = 15;
         while (!stoppingToken.IsCancellationRequested)
         {
-            Console.WriteLine($"Worker running at: {DateTime.Now}");
+            Console.WriteLine($"DocumentProcessingWorker running at: {DateTime.Now}");
             
             using var scope = scopeFactory.CreateScope();
             var documentProcessor = scope.ServiceProvider

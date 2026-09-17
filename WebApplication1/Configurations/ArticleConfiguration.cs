@@ -21,5 +21,10 @@ public class ArticleConfiguration : IEntityTypeConfiguration<Article>
         builder.Property(a => a.Content)
             .IsRequired()
             .HasMaxLength(1000);
+        
+        builder.Property(a => a.ProcessingStatus)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasConversion<string>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Shared.Contracts.Events;
 using WebApplication1.Application;
 using WebApplication1.Models;
 
@@ -50,6 +51,14 @@ public class ArticlesRepository(AssistentDbContext dbContext)
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync();
         return deleteCount > 0;
+    }
+
+    public async Task SetArticleStatus(Guid id, ProcessingStatus status)
+    {
+        await dbContext.Articles
+            .Where(a => a.Id == id)
+            .ExecuteUpdateAsync(a => a
+                .SetProperty(article => article.ProcessingStatus, status));
     }
 
 }

@@ -2,8 +2,8 @@
 
 namespace Shared.Contracts.Events;
 
-public record DocumentChunksCreatedEvent(
+public record TextChunksPreparedEvent(
     Guid SourceId,
     SourceType SourceType,
-    IReadOnlyList<DocumentChunkData> Chunks
+    IReadOnlyList<TextChunkData> Chunks
 );

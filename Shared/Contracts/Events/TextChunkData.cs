@@ -1,6 +1,6 @@
 ﻿namespace DocumentService.Dtos;
 
-public record DocumentChunkData(
+public record TextChunkData(
     Guid Id,
     int Index,
     string Text

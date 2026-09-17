@@ -1,8 +1,10 @@
-﻿using EmbeddingService.Abstractions;
+﻿using DocumentService.Dtos;
+using EmbeddingService.Abstractions;
 using EmbeddingService.Models;
 using EmbeddingService.Repositories;
 using Pgvector;
 using Shared.Contracts.Events;
+using Shared.Messaging;
 
 namespace EmbeddingService.Services;
 
@@ -10,20 +12,24 @@ public class EmbeddingCreator(
     EmbeddingRepository repository, 
     IEmbeddingService embeddingService)
 {
-    public async Task CreateVector(DocumentChunksCreatedEvent chunks)
+    public async Task CreateVector(
+        TextChunksPreparedEvent chunks)
     {
-        var embeddings = new List<Embedding>();
-        foreach (var chunk in chunks.Chunks)
-        {
-            var vector = await embeddingService.CreateEmbedding(chunk.Text);
-            embeddings.Add(new Embedding {
-                Id = Guid.NewGuid(),
-                ResourceId = chunk.Id,
-                SourceType = chunks.SourceType,
-                Vector = vector}
-            );
-        }
+        var texts = chunks.Chunks
+            .Select(chunk => chunk.Text)
+            .ToList();
         
-        await repository.CreateEmbeddings(embeddings);
+        var vectors = await embeddingService.CreateEmbeddings(texts);
+        
+        var embeddings = vectors
+            .Select((vector, index) => new Embedding
+            {
+                Id = Guid.NewGuid(), 
+                ResourceId = chunks.Chunks[index].Id, 
+                SourceType = chunks.SourceType, 
+                Vector = vector
+            }).ToList();
+        
+        await repository.AddRange(embeddings);
     }
 }

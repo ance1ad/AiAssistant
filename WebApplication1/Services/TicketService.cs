@@ -1,5 +1,4 @@
-﻿using WebApplication1.Configurations;
-using WebApplication1.Dtos;
+﻿using WebApplication1.Dtos;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 

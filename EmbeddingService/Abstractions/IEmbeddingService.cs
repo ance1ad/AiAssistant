@@ -4,5 +4,7 @@ namespace EmbeddingService.Abstractions;
 
 public interface IEmbeddingService
 {
-    public Task<Vector> CreateEmbedding(string text, CancellationToken cancellationToken = default);
+    public Task<IReadOnlyList<Vector>> CreateEmbeddings(
+        IReadOnlyList<string> texts, 
+        CancellationToken cancellationToken = default);
 }

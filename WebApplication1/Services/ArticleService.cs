@@ -1,10 +1,15 @@
-﻿using WebApplication1.Dtos;
+﻿using DocumentService.Dtos;
+using Shared.Contracts.Events;
+using Shared.Messaging;
+using WebApplication1.Dtos;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
 namespace WebApplication1.Services;
 
-public class ArticleService(ArticlesRepository articlesRepository)
+public class ArticleService(
+    ArticlesRepository articlesRepository,
+    RabbitMqPublisher publisher)
 {
     private readonly ArticlesRepository _articlesRepository = articlesRepository;
 
@@ -27,7 +32,8 @@ public class ArticleService(ArticlesRepository articlesRepository)
                 article.Id, 
                 article.Title,  
                 article.Keywords,  
-                article.Content)
+                article.Content,
+                article.ProcessingStatus)
             )
             .ToList();
     }
@@ -38,7 +44,12 @@ public class ArticleService(ArticlesRepository articlesRepository)
         var article = await _articlesRepository.Get(id);
         if (article != null)
         {
-            return new ArticleResponse(article.Id, article.Title, article.Keywords, article.Content);
+            return new ArticleResponse(
+                article.Id, 
+                article.Title,
+                article.Keywords,
+                article.Content,
+                article.ProcessingStatus);
         }
         return null;
     }
@@ -51,27 +62,51 @@ public class ArticleService(ArticlesRepository articlesRepository)
             Id = Guid.NewGuid(),
             Title = articleRequest.Title,
             Keywords = articleRequest.Keywords,
-            Content = articleRequest.Content
+            Content = articleRequest.Content,
+            ProcessingStatus = ProcessingStatus.Pending,
         };
+        
         await _articlesRepository.Add(articleEntity);
+        
+        try
+        {
+            var chunkData = new List<TextChunkData>
+            {
+                new (articleEntity.Id, 0, articleEntity.Content)
+            };
+
+            await publisher.PublishAsync(new TextChunksPreparedEvent(
+                articleEntity.Id, SourceType.Article, chunkData), "text.chunks.prepared");
+            
+            await _articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Processing);
+            articleEntity.ProcessingStatus = ProcessingStatus.Processing;
+        }
+        catch
+        {
+            await _articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Error);
+            throw;
+        }
         
         return new ArticleResponse
         (
             articleEntity.Id,
             articleEntity.Title,
             articleEntity.Keywords,
-            articleEntity.Content
+            articleEntity.Content,
+            articleEntity.ProcessingStatus
         );
     }
     
     
-    public async Task<List<ArticleResponse>> CreateMany(List<CreateArticleRequest> articles)
+    public async Task<List<ArticleResponse>> CreateMany(
+        List<CreateArticleRequest> articles)
     {
-       var articleEntitys =  articles.Select(articleDto => new Article{
+       var articleEntitys = articles.Select(article => new Article{
            Id = Guid.NewGuid(),
-           Title = articleDto.Title,
-           Keywords = articleDto.Keywords,
-           Content = articleDto.Content
+           Title = article.Title,
+           Keywords = article.Keywords,
+           Content = article.Content,
+           ProcessingStatus = ProcessingStatus.Pending,
        }).ToList();
        
        await _articlesRepository.AddRange(articleEntitys);
@@ -80,7 +115,8 @@ public class ArticleService(ArticlesRepository articlesRepository)
            a.Id, 
            a.Title, 
            a.Keywords, 
-           a.Content
+           a.Content,
+           a.ProcessingStatus
         )).ToList();
     }
     
@@ -90,11 +126,17 @@ public class ArticleService(ArticlesRepository articlesRepository)
         var articleEntity = new Article { 
             Title = articleRequest.Title,
             Keywords = articleRequest.Keywords,
-            Content = articleRequest.Content
+            Content = articleRequest.Content,
+            ProcessingStatus = ProcessingStatus.Pending
         };
         return _articlesRepository.Update(id, articleEntity);
     }
-    
+
+
+    public async Task SetArticleStatus(Guid id, ProcessingStatus status)
+    {
+        await _articlesRepository.SetArticleStatus(id, status);
+    }
     
     public Task<bool> Delete(Guid id)
     {
@@ -123,7 +165,8 @@ public class ArticleService(ArticlesRepository articlesRepository)
             a.Article.Id,
             a.Article.Title,
             a.Article.Keywords,
-            a.Article.Content
+            a.Article.Content,
+            a.Article.ProcessingStatus
         )).ToList();
     }
 
@@ -166,5 +209,4 @@ public class ArticleService(ArticlesRepository articlesRepository)
             .ToLower()
             .Trim();
     }
-        
 }

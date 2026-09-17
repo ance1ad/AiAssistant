@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Models;
+﻿using Shared.Contracts.Events;
+
+namespace WebApplication1.Models;
 
 public class Article
 {
@@ -6,6 +8,7 @@ public class Article
     public string Title { get; set; } = string.Empty;
     public string Keywords { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
+    public ProcessingStatus ProcessingStatus { get; set; }
 }
 
 

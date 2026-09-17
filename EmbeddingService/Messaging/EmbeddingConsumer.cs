@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
+using DocumentService.Dtos;
+using DocumentService.Messaging;
 using EmbeddingService.Services;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -9,9 +11,11 @@ using Shared.Messaging;
 
 namespace EmbeddingService.Messaging;
 
-public class RabbitMqConsumer(
+public class EmbeddingConsumer(
     IOptions<RabbitMqOptions> options, 
     RabbitMqConnectionProvider connectionProvider,
+    RabbitMqPublisher publisher,
+    RabbitMqConsumerInitializer initializer,
     IServiceScopeFactory serviceScopeFactory
     )  : BackgroundService
 {
@@ -20,18 +24,14 @@ public class RabbitMqConsumer(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var channel = await connectionProvider.GetChannelAsync();
-        
-        await channel.QueueDeclareAsync(
-            queue: _options.QueueName,
-            durable: true,
-            exclusive: false,
-            autoDelete: false, 
-            cancellationToken: stoppingToken);
 
+        await initializer.DeclareParametersAsync(channel, _options, stoppingToken);
+        
         var consumer = new AsyncEventingBasicConsumer(channel);
 
         consumer.ReceivedAsync += HandleMessageAsync;
-
+        
+        // Начать доставлять сообщения этому консюмеру
         await channel.BasicConsumeAsync(
             queue: _options.QueueName,
             autoAck: false,
@@ -45,21 +45,45 @@ public class RabbitMqConsumer(
     {
         var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
 
-        var message = JsonSerializer.Deserialize<DocumentChunksCreatedEvent>(json);
+        var message = JsonSerializer.Deserialize<TextChunksPreparedEvent>(json);
 
         var channel = await connectionProvider.GetChannelAsync();
         
         Console.WriteLine("Получено событие: {0}, количество чанков {1}", message?.SourceId, message?.Chunks.Count);
 
-        var scope = serviceScopeFactory.CreateScope();
-        var embeddingCreator = scope.ServiceProvider.GetRequiredService<EmbeddingCreator>();
-        
-        if (message != null) 
-            await embeddingCreator.CreateVector(message);
+        if (message == null)
+        {
+            //...
+        }
 
-        await channel.BasicAckAsync(
-            deliveryTag: eventArgs.DeliveryTag, 
-            multiple: false);
+        try
+        {
+            var scope = serviceScopeFactory.CreateScope();
+            var embeddingCreator = scope.ServiceProvider.GetRequiredService<EmbeddingCreator>();
+            await embeddingCreator.CreateVector(message);
+            
+            await publisher.PublishAsync(
+                new EmbeddingCompletedEvent(
+                    message.SourceId,
+                    message.SourceType), 
+                "embedding.completed");
+            
+            await channel.BasicAckAsync(
+                deliveryTag: eventArgs.DeliveryTag, 
+                multiple: false);
+        }
+        catch
+        {
+            await publisher.PublishAsync(
+                new EmbeddingFailedEvent(
+                    message.SourceId,
+                    message.SourceType), 
+                "embedding.failed");
+            
+            await channel.BasicAckAsync(
+                deliveryTag: eventArgs.DeliveryTag, 
+                multiple: false);
+        }
     }
     
 }

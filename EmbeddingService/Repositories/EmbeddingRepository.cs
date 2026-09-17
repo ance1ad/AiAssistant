@@ -5,10 +5,9 @@ namespace EmbeddingService.Repositories;
 
 public class EmbeddingRepository(EmbeddingDbContext context)
 {
-    public async Task CreateEmbeddings(List<Embedding> embeddingRecords)
+    public async Task AddRange(List<Embedding> embeddingRecords)
     {
-        Console.WriteLine("Creating Vector");
+        await context.Embeddings.AddRangeAsync(embeddingRecords);
+        await context.SaveChangesAsync();
     }
-    
-    // public async Task
 }

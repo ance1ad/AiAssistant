@@ -6,27 +6,34 @@ namespace EmbeddingService.Services;
 
 public class GeminiEmbeddingService(HttpClient httpClient) : IEmbeddingService
 {
-    public async Task<Vector> CreateEmbedding(string? text, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Vector>> CreateEmbeddings(
+        IReadOnlyList<string> texts, 
+        CancellationToken cancellationToken = default)
     {
-        var request = new
-        {
-            content = new
-            {
-                parts = new[]
-                {
-                    new
-                    {
-                        text
-                    }
-                }
-            },
-            output_dimensionality = 768
-        };
-        
         var geminiModel = "gemini-embedding-2";
         
+        var request = new
+        {
+            requests = texts.Select(text => new
+            {
+                model = $"models/{geminiModel}",
+                content = new
+                {
+                    parts = new[]
+                    {
+                        new
+                        {
+                            text
+                        }
+                    }
+                },
+                output_dimensionality = 768
+            }).ToList()
+        };
+        
+        
         using var response = await httpClient.PostAsJsonAsync(
-            $"https://generativelanguage.googleapis.com/v1beta/models/{geminiModel}:embedContent",
+            $"https://generativelanguage.googleapis.com/v1beta/models/{geminiModel}:batchEmbedContents",
             request,
             cancellationToken);
         
@@ -35,20 +42,16 @@ public class GeminiEmbeddingService(HttpClient httpClient) : IEmbeddingService
         var result = await response.Content
             .ReadFromJsonAsync<GeminiEmbeddingResponse>(cancellationToken);
         
-        return new Vector(result!.Embedding.Values);
-        // var json = await response.Content.ReadAsStringAsync(cancellationToken);
-        //
-        // Console.WriteLine(json);
-        //
-        // throw new Exception("Посмотри JSON в консоли");
+        return result!.Embeddings
+            .Select(x => new Vector(x.Values))
+            .ToList();
     }
     
-
     
     private sealed class GeminiEmbeddingResponse
     {
-        [JsonPropertyName("embedding")]
-        public EmbeddingResult Embedding { get; set; } = null!;
+        [JsonPropertyName("embeddings")]
+        public EmbeddingResult[] Embeddings { get; set; } = null!;
     }
 
     private sealed class EmbeddingResult
@@ -56,5 +59,5 @@ public class GeminiEmbeddingService(HttpClient httpClient) : IEmbeddingService
         [JsonPropertyName("values")]
         public float[] Values { get; set; } = [];
     }
-    
+
 }
