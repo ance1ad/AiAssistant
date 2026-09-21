@@ -5,7 +5,7 @@ using WebApplication1.Services;
 
 namespace WebApplication1.Controllers;
 
-[Authorize(Roles = "Admin")]
+// [Authorize(Roles = "Admin")]
 [ApiController]
 [Route("articles")]
 public class ArticlesController(ArticleService articleService) : ControllerBase

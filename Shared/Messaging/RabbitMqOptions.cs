@@ -1,4 +1,4 @@
-﻿namespace DocumentService.Messaging;
+﻿namespace Shared.Messaging;
 
 public class RabbitMqOptions
 {

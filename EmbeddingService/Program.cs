@@ -1,4 +1,3 @@
-using DocumentService.Messaging;
 using EmbeddingService.Abstractions;
 using EmbeddingService.Application;
 using EmbeddingService.Messaging;
@@ -32,6 +31,10 @@ builder.Services.Configure<RabbitMqOptions>(
 // Embedding logic
 builder.Services.AddScoped<EmbeddingCreator>();
 builder.Services.AddScoped<EmbeddingRepository>();
+
+// Broker
+builder.Services.AddSingleton<RabbitMqPublisher>();
+builder.Services.AddSingleton<RabbitMqConnectionProvider>();
 
 builder.Services.AddHttpClient<IEmbeddingService, GeminiEmbeddingService>((serviceProvider, client) =>
 {

@@ -12,7 +12,8 @@ public class DocumentProcessor(
     DocumentParserResolver documentParserResolver,
     ITextChunker textChunker, 
     ChunkingService chunkingService,
-    RabbitMqPublisher publisher)
+    RabbitMqPublisher publisher,
+    ILogger<DocumentProcessor> logger)
 {
     public async Task ProcessAsync(
         KnowledgeDocument knowledgeDocument, 
@@ -42,6 +43,10 @@ public class DocumentProcessor(
             await publisher.PublishAsync(new TextChunksPreparedEvent(
                 knowledgeDocument.Id, SourceType.Document, chunksData), "text.chunks.prepared");
             
+            logger.LogInformation(
+                "Document {FileName} submitted for processing ",
+                knowledgeDocument.FilePath);
+            
             await documentRepository
                 .SetDocumentProcessed(knowledgeDocument.Id, text, cancellationToken);
         }
@@ -62,11 +67,13 @@ public class DocumentProcessor(
         var document = await documentRepository.GetPendingDocument(token);
         if (document == null)
         {
-            Console.WriteLine("Не найдено новых файлов для обработки");
             return null;
         }
-        // Принимаем в работу
-        Console.WriteLine($"Файл {document.FilePath} принят в работу");
+
+        logger.LogInformation(
+            "File: {FileName} is on processing now",
+            document.FilePath);
+        
         await documentRepository.SetDocumentProcessing(document.Id, token);
         return document;
     }

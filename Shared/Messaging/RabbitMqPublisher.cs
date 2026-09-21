@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using DocumentService.Messaging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 

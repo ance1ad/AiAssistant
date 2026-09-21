@@ -1,5 +1,4 @@
-﻿using DocumentService.Messaging;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 
 namespace Shared.Messaging;
 

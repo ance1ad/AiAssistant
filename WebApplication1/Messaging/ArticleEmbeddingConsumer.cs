@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using DocumentService.Dtos;
-using DocumentService.Messaging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -15,7 +14,8 @@ public class ArticleEmbeddingConsumer(
     IOptions<RabbitMqOptions> options, 
     RabbitMqConnectionProvider connectionProvider,
     RabbitMqConsumerInitializer consumerInitializer,
-    IServiceScopeFactory serviceScopeFactory) : BackgroundService
+    IServiceScopeFactory serviceScopeFactory,
+    ILogger<ArticleEmbeddingConsumer> logger) : BackgroundService
 {
     private readonly RabbitMqOptions _options = options.Value;
     
@@ -39,57 +39,89 @@ public class ArticleEmbeddingConsumer(
 
     private async Task HandleEmbeddingResultAsync(object sender, BasicDeliverEventArgs eventArgs)
     {
-        var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
-        
-        var scope = serviceScopeFactory.CreateScope();
-        var articleService = scope.ServiceProvider.GetRequiredService<ArticleService>();
-        
         var channel = await connectionProvider.GetChannelAsync();
-        
-        switch (eventArgs.RoutingKey)
+
+        try
         {
-            case "embedding.completed":
+            var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+            
+            switch (eventArgs.RoutingKey)
             {
-                var message = JsonSerializer.Deserialize<EmbeddingCompletedEvent>(json);
-                
-                if (message == null)
-                    throw new InvalidOperationException(
-                        "Failed to deserialize EmbeddingCompletedEvent.");
-                
-                if(message.SourceType != SourceType.Article)
+                case "embedding.completed":
                 {
-                    await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-                    return;
+                    await HandleArticleEmbeddingMessage<EmbeddingCompletedEvent>(
+                        channel, eventArgs, json, ProcessingStatus.Complete);
+
+                    break;
                 }
-                
-                await articleService.SetArticleStatus(message!.Id, ProcessingStatus.Complete);
-                
-                await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-                break;
-            }
-            case "embedding.failed":
-            {
-                var message = JsonSerializer.Deserialize<EmbeddingFailedEvent>(json);
-                
-                if (message == null)
-                    throw new InvalidOperationException(
-                        "Failed to deserialize EmbeddingCompletedEvent.");
-                
-                if(message.SourceType != SourceType.Article)
+                case "embedding.failed":
                 {
-                    await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-                    return;
+                    await HandleArticleEmbeddingMessage<EmbeddingFailedEvent>(
+                        channel, eventArgs, json, ProcessingStatus.Error);
+                    break;
                 }
-                
-                await articleService.SetArticleStatus(message!.Id, ProcessingStatus.Error);
-                
-                await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-                break;
+                default:
+                    throw new InvalidOperationException(
+                        $"Unknown routing key: {eventArgs.RoutingKey}");
             }
-            default:
-                throw new InvalidOperationException(
-                    $"Unknown routing key: {eventArgs.RoutingKey}");
-                
+        }
+        catch (JsonException ex)
+        {
+            logger.LogError(
+                ex, 
+                "Invalid JSON in RabbitMQ message. RoutingKey: {RoutingKey}", 
+                eventArgs.RoutingKey);
+            
+            await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex, 
+                "Failed to process RabbitMQ message. RoutingKey: {RoutingKey}", 
+                eventArgs.RoutingKey);
+
+            await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
         }
     }
+
+    private async Task HandleArticleEmbeddingMessage<T>(
+        IChannel channel,
+        BasicDeliverEventArgs eventArgs,
+        string json,
+        ProcessingStatus status) 
+    where T : IEmbeddingResult 
+    {
+        using var scope = serviceScopeFactory.CreateScope();
+        var articleService = scope.ServiceProvider.GetRequiredService<ArticleService>();
+
+        var message = JsonSerializer.Deserialize<T>(json);
+
+        if (message == null)
+        {
+            logger.LogError(
+                "Failed to deserialize {MessageType}, RoutingKey: {RoutingKey}",
+                typeof(T).Name,
+                eventArgs.RoutingKey);
+
+            throw new InvalidOperationException(
+                $"Failed to deserialize {typeof(T).Name}.");
+        }
+
+        if (message.SourceType != SourceType.Article)
+        {
+            await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+            return;
+        }
+        
+        await articleService.SetArticleStatus(message.Id, status);
+
+        logger.LogInformation(
+            "Article {Article} is turned to status {Status}", 
+            message.Id,
+            status);
+
+        await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+    }
+
 }

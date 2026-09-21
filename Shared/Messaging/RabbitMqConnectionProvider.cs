@@ -1,7 +1,7 @@
-﻿using RabbitMQ.Client;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 
-namespace DocumentService.Messaging;
+namespace Shared.Messaging;
 
 public class RabbitMqConnectionProvider
 {

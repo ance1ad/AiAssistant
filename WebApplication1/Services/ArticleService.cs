@@ -9,7 +9,8 @@ namespace WebApplication1.Services;
 
 public class ArticleService(
     ArticlesRepository articlesRepository,
-    RabbitMqPublisher publisher)
+    RabbitMqPublisher publisher,
+    ILogger<ArticleService> logger)
 {
     private readonly ArticlesRepository _articlesRepository = articlesRepository;
 
@@ -37,7 +38,6 @@ public class ArticleService(
             )
             .ToList();
     }
-    
     
     public async Task<ArticleResponse?> Get(Guid id)
     {
@@ -77,6 +77,10 @@ public class ArticleService(
 
             await publisher.PublishAsync(new TextChunksPreparedEvent(
                 articleEntity.Id, SourceType.Article, chunkData), "text.chunks.prepared");
+            
+            logger.LogInformation(
+                "Article {ArticleName} submitted for processing",
+                articleEntity.Title);
             
             await _articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Processing);
             articleEntity.ProcessingStatus = ProcessingStatus.Processing;

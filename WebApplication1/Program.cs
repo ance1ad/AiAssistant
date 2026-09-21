@@ -19,6 +19,9 @@ builder.Services.AddDbContext<AssistentDbContext>(options =>
     options.UseNpgsql(configuration.GetConnectionString(nameof(AssistentDbContext)));
 });
 
+builder.Services.Configure<RabbitMqOptions>(
+    builder.Configuration.GetSection("RabbitMq"));
+
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -68,6 +71,9 @@ builder.Services.AddSingleton<TelegramUpdateHandler>();
 // Backround service / Consumer
 builder.Services.AddHostedService<ArticleEmbeddingConsumer>();
 builder.Services.AddSingleton<RabbitMqConsumerInitializer>();
+
+builder.Services.AddSingleton<RabbitMqPublisher>();
+builder.Services.AddSingleton<RabbitMqConnectionProvider>();
 
 
 builder.Services.AddCors(options =>

@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using DocumentService.Dtos;
-using DocumentService.Messaging;
 using EmbeddingService.Services;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -16,8 +15,8 @@ public class EmbeddingConsumer(
     RabbitMqConnectionProvider connectionProvider,
     RabbitMqPublisher publisher,
     RabbitMqConsumerInitializer initializer,
-    IServiceScopeFactory serviceScopeFactory
-    )  : BackgroundService
+    IServiceScopeFactory serviceScopeFactory,
+    ILogger<EmbeddingConsumer> logger)  : BackgroundService
 {
     private readonly RabbitMqOptions _options = options.Value;
 
@@ -49,13 +48,16 @@ public class EmbeddingConsumer(
 
         var channel = await connectionProvider.GetChannelAsync();
         
-        Console.WriteLine("Получено событие: {0}, количество чанков {1}", message?.SourceId, message?.Chunks.Count);
-
         if (message == null)
         {
-            //...
+            logger.LogError("Message is null");
+            
+            await channel.BasicAckAsync(
+                deliveryTag: eventArgs.DeliveryTag, 
+                multiple: false);
+            
+            return;
         }
-
         try
         {
             var scope = serviceScopeFactory.CreateScope();
