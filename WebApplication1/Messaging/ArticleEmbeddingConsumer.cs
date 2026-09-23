@@ -93,7 +93,7 @@ public class ArticleEmbeddingConsumer(
     where T : IEmbeddingResult 
     {
         using var scope = serviceScopeFactory.CreateScope();
-        var articleService = scope.ServiceProvider.GetRequiredService<ArticleService>();
+        var articleService = scope.ServiceProvider.GetRequiredService<Services.ArticleService>();
 
         var message = JsonSerializer.Deserialize<T>(json);
 

@@ -1,8 +1,10 @@
 using EmbeddingService.Abstractions;
 using EmbeddingService.Application;
+using EmbeddingService.Grpc;
 using EmbeddingService.Messaging;
 using EmbeddingService.Repositories;
 using EmbeddingService.Services;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Shared.Messaging;
 
@@ -20,7 +22,17 @@ builder.Services.AddDbContext<EmbeddingDbContext>(options =>
         });
 });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5025, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
+
 builder.Services.AddControllers();
+builder.Services.AddGrpc();
+
 
 builder.Services.AddHostedService<EmbeddingConsumer>();
 builder.Services.AddSingleton<RabbitMqConsumerInitializer>();
@@ -29,7 +41,7 @@ builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection("RabbitMq"));
 
 // Embedding logic
-builder.Services.AddScoped<EmbeddingCreator>();
+builder.Services.AddScoped<EmbeddingProcessor>();
 builder.Services.AddScoped<EmbeddingRepository>();
 
 // Broker
@@ -48,5 +60,7 @@ builder.Services.AddHttpClient<IEmbeddingService, GeminiEmbeddingService>((servi
 var app = builder.Build();
 
 app.MapControllers();
+
+app.MapGrpcService<EmbeddingGrpcEndpoint>();
 
 app.Run();

@@ -1,15 +1,15 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Shared.Messaging;
 using WebApplication1.Application;
-using WebApplication1.Interfaces;
+using WebApplication1.Grpc;
 using WebApplication1.Messaging;
 using WebApplication1.Repositories;
 using WebApplication1.Services;
-using WebApplication1.Telegram;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -17,6 +17,17 @@ var configuration = builder.Configuration;
 builder.Services.AddDbContext<AssistentDbContext>(options =>
 {
     options.UseNpgsql(configuration.GetConnectionString(nameof(AssistentDbContext)));
+});
+
+builder.Services.AddGrpc();
+
+// Конфигурируем на http2 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5010, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
 });
 
 builder.Services.Configure<RabbitMqOptions>(
@@ -49,24 +60,16 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-builder.Services.AddScoped<ArticleService>();
+builder.Services.AddScoped<WebApplication1.Services.ArticleService>();
 builder.Services.AddScoped<ArticlesRepository>();
 
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<UsersRepository>();
+
 
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<AdminsRepository>();
 
-builder.Services.AddScoped<TicketService>();
-builder.Services.AddScoped<TicketsRepository>();
-
-builder.Services.AddScoped<AssistantService>();
-builder.Services.AddHttpClient<IAiService, GeminiService>();
 builder.Services.AddSingleton<JwtService>();
 
-builder.Services.AddSingleton<TelegramBotService>();
-builder.Services.AddSingleton<TelegramUpdateHandler>();
 
 // Backround service / Consumer
 builder.Services.AddHostedService<ArticleEmbeddingConsumer>();
@@ -138,8 +141,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseCors("client");
 
-// var bot =  app.Services.GetRequiredService<TelegramBotService>();
-// bot.Start();
+app.MapGrpcService<ArticleGrpcEndpoint>();
 
 
 app.Run();

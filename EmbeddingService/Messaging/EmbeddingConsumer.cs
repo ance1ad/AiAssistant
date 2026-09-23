@@ -61,8 +61,8 @@ public class EmbeddingConsumer(
         try
         {
             var scope = serviceScopeFactory.CreateScope();
-            var embeddingCreator = scope.ServiceProvider.GetRequiredService<EmbeddingCreator>();
-            await embeddingCreator.CreateVector(message);
+            var embeddingCreator = scope.ServiceProvider.GetRequiredService<EmbeddingProcessor>();
+            await embeddingCreator.AddVectors(message);
             
             await publisher.PublishAsync(
                 new EmbeddingCompletedEvent(

@@ -148,6 +148,7 @@ public class ArticleService(
     }
 
     
+    // Старый способ поиска статей
     public async Task<List<ArticleResponse>> FindRelevantArticles(string message)
     {
         var words = ExtractWords(message);

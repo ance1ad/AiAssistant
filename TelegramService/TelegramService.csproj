@@ -4,13 +4,17 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-      <UserSecretsId>a7a4339f-3620-4176-ae71-50ca1f3fcf95</UserSecretsId>
+      <UserSecretsId>7b9cdd36-9bbb-4b01-a761-b578bca821f7</UserSecretsId>
   </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
-        <PackageReference Include="Grpc.AspNetCore" Version="2.84.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
+        <PackageReference Include="Google.Protobuf" Version="3.35.1" />
+        <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.84.0" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.84.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.84.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
@@ -18,22 +22,15 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.3" />
-        <PackageReference Include="Telegram.Bot" Version="22.10.2.1" />
+        <PackageReference Include="Telegram.Bot" Version="22.10.3.2-dev.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Migrations\" />
+      <Folder Include="Dtos\" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Shared\Shared.csproj" />
+      <Protobuf Include="..\Shared\Contracts\Protos\assistant.proto"
+              GrpcServices="Client" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Protobuf Include="..\Shared\Contracts\Protos\article.proto" 
-            GrpcServices="Server" />
-    </ItemGroup>
-
 </Project>

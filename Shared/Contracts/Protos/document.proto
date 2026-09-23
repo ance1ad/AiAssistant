@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "DocumentService.Grpc";
+package document;
+
+service Document{
+  rpc GetText(ResourceRequest) returns (ResourceResponse);
+}
+
+message ResourceRequest {
+  string id = 1;
+}
+
+message ResourceResponse {
+  string text = 1;
+}

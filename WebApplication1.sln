@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingService", "Embeddi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramService", "TelegramService\TelegramService.csproj", "{2A11EA89-E55E-44BF-9383-034F572E0B7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssistantService", "AssistantService\AssistantService.csproj", "{51C46D1E-AEC4-4DEB-B60F-8527E098F76D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD4D7C4C-88E8-4702-96E9-BC50BC32C83B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A11EA89-E55E-44BF-9383-034F572E0B7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A11EA89-E55E-44BF-9383-034F572E0B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A11EA89-E55E-44BF-9383-034F572E0B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A11EA89-E55E-44BF-9383-034F572E0B7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51C46D1E-AEC4-4DEB-B60F-8527E098F76D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51C46D1E-AEC4-4DEB-B60F-8527E098F76D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51C46D1E-AEC4-4DEB-B60F-8527E098F76D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51C46D1E-AEC4-4DEB-B60F-8527E098F76D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -10,16 +10,13 @@ public class AssistentDbContext : DbContext
         : base(options)
     { }
     
-    public DbSet<Ticket> Tickets => Set<Ticket>();
-    public DbSet<User> Users => Set<User>();
+    
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<Admin> Admins => Set<Admin>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ArticleConfiguration());
-        modelBuilder.ApplyConfiguration(new UserConfiguration());
-        modelBuilder.ApplyConfiguration(new TicketConfiguration());
         modelBuilder.ApplyConfiguration(new AdminConfiguration());
         
         base.OnModelCreating(modelBuilder);

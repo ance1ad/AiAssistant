@@ -8,14 +8,13 @@ namespace WebApplication1.Controllers;
 // [Authorize(Roles = "Admin")]
 [ApiController]
 [Route("articles")]
-public class ArticlesController(ArticleService articleService) : ControllerBase
+public class ArticlesController(Services.ArticleService articleService) : ControllerBase
 {
-    private readonly ArticleService _articleService = articleService;
 
     [HttpGet]
     public async Task<IActionResult> GetArticles()
     {
-        var articles = await _articleService.Get();
+        var articles = await articleService.Get();
         return Ok(articles);
     }
     
@@ -23,7 +22,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetArticle(Guid id)
     { 
-        var article = await _articleService.Get(id);
+        var article = await articleService.Get(id);
         
         if (article == null)
         {
@@ -36,7 +35,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PostArticle(CreateArticleRequest newArticle)
     { 
-        var createdArticle = await _articleService.Create(newArticle);
+        var createdArticle = await articleService.Create(newArticle);
         
         return CreatedAtAction(
             nameof(GetArticle), 
@@ -49,7 +48,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     [HttpPost("bulk")]
     public async Task<IActionResult> PostArticles(List<CreateArticleRequest> newArticles)
     {
-        var actions = await _articleService.CreateMany(newArticles);
+        var actions = await articleService.CreateMany(newArticles);
         return Ok(actions);
     }
 
@@ -57,7 +56,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutArticle(Guid id, UpdateArticleRequest updateArticle)
     {
-        bool updated = await _articleService.Update(id, updateArticle);
+        bool updated = await articleService.Update(id, updateArticle);
     
         if (updated)
         {
@@ -70,7 +69,7 @@ public class ArticlesController(ArticleService articleService) : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteArticle(Guid id)
     {
-        bool result = await _articleService.Delete(id);
+        bool result = await articleService.Delete(id);
         if (result)
         {
             return NoContent();

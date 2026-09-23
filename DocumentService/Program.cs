@@ -1,9 +1,11 @@
 using DocumentService.Abstractions;
 using DocumentService.Application;
 using DocumentService.Background;
+using DocumentService.Grpc;
 using DocumentService.Messaging;
 using DocumentService.Repositories;
 using DocumentService.Services;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Shared.Messaging;
 
@@ -16,6 +18,18 @@ builder.Services.AddDbContext<DocumentDbContext>(options =>
 {
     options.UseNpgsql(configuration.GetConnectionString("AssistentDbContext"));
 });
+
+builder.Services.AddGrpc();
+
+// Конфигурируем на http2 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5233, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
@@ -56,6 +70,6 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.MapControllers();
-
+app.MapGrpcService<DocumentGrpcEndpoint>();
 
 app.Run();

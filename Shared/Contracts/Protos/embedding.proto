@@ -1,0 +1,27 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "EmbeddingService.Grpc";
+package embedding;
+
+service Embedding {
+  rpc GetSimilarities(AskRequest) returns (SimilaritySearchResults);
+}
+
+message AskRequest {
+  string question = 1;
+}
+
+message SimilaritySearchResults {
+  repeated SimilaritySearchResult results = 1;
+}
+
+message SimilaritySearchResult {
+  string id = 1;
+  SourceType source_type = 2;
+  double similarity_score = 3;
+}
+
+enum SourceType {
+    ARTICLE = 0;
+    DOCUMENT = 1;
+}
