@@ -1,5 +1,6 @@
 ﻿using Pgvector;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace EmbeddingService.Models;
 

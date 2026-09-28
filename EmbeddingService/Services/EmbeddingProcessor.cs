@@ -3,6 +3,7 @@ using EmbeddingService.Models;
 using EmbeddingService.Repositories;
 using Pgvector;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace EmbeddingService.Services;
 

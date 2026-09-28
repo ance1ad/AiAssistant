@@ -1,4 +1,4 @@
-﻿namespace Shared.Contracts.Events;
+﻿namespace Shared.Contracts.Models;
 
 public enum SourceType
 {

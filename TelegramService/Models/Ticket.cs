@@ -12,9 +12,8 @@ public class Ticket
 
 public enum TicketStatus
 {
-    New,
     Processing,
+    Error,
     Answered,
     NeedsHuman,
-    Closed
 }

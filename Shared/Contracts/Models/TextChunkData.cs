@@ -1,4 +1,4 @@
-﻿namespace DocumentService.Dtos;
+﻿namespace Shared.Contracts.Models;
 
 public record TextChunkData(
     Guid Id,

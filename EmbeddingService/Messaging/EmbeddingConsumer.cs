@@ -1,12 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
-using DocumentService.Dtos;
 using EmbeddingService.Services;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.Contracts.Events;
 using Shared.Messaging;
+using Shared.Messaging.Configuration;
 
 namespace EmbeddingService.Messaging;
 
@@ -42,50 +42,65 @@ public class EmbeddingConsumer(
 
     private async Task HandleMessageAsync(object sender, BasicDeliverEventArgs eventArgs)
     {
-        var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
-
-        var message = JsonSerializer.Deserialize<TextChunksPreparedEvent>(json);
-
         var channel = await connectionProvider.GetChannelAsync();
-        
+
+        var message = Deserialize(eventArgs);
+
         if (message == null)
         {
             logger.LogError("Message is null");
             
-            await channel.BasicAckAsync(
-                deliveryTag: eventArgs.DeliveryTag, 
-                multiple: false);
+            await Ack(eventArgs, channel);
             
             return;
         }
         try
         {
-            var scope = serviceScopeFactory.CreateScope();
-            var embeddingCreator = scope.ServiceProvider.GetRequiredService<EmbeddingProcessor>();
-            await embeddingCreator.AddVectors(message);
+            await ProcessMessage(message);
             
             await publisher.PublishAsync(
                 new EmbeddingCompletedEvent(
                     message.SourceId,
                     message.SourceType), 
-                "embedding.completed");
+                RabbitEvents.EmbeddingCompleted);
             
-            await channel.BasicAckAsync(
-                deliveryTag: eventArgs.DeliveryTag, 
-                multiple: false);
+            await Ack(eventArgs, channel);
         }
-        catch
+        catch(Exception ex)
         {
+            logger.LogError(ex, "Failed to process embedding");
+            
             await publisher.PublishAsync(
                 new EmbeddingFailedEvent(
                     message.SourceId,
                     message.SourceType), 
-                "embedding.failed");
+                RabbitEvents.EmbeddingFailed);
             
-            await channel.BasicAckAsync(
-                deliveryTag: eventArgs.DeliveryTag, 
-                multiple: false);
+            await Ack(eventArgs, channel);
         }
     }
+
+    private static TextChunksPreparedEvent? Deserialize(BasicDeliverEventArgs eventArgs)
+    {
+        var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+        var message = JsonSerializer.Deserialize<TextChunksPreparedEvent>(json);
+        return message;
+    }
+
+    private static async Task Ack(BasicDeliverEventArgs eventArgs, IChannel channel)
+    {
+        await channel.BasicAckAsync(
+            deliveryTag: eventArgs.DeliveryTag, 
+            multiple: false);
+    }
     
+    private async Task ProcessMessage(TextChunksPreparedEvent message)
+    {
+        using var scope = serviceScopeFactory.CreateScope();
+
+        var embeddingCreator =
+            scope.ServiceProvider.GetRequiredService<EmbeddingProcessor>();
+
+        await embeddingCreator.AddVectors(message);
+    }
 }

@@ -4,7 +4,7 @@ namespace WebApplication1.Dtos;
 
 public record CreateArticleRequest(
     [Required]
-    [StringLength(30)] 
+    [StringLength(128)] 
     string Title, 
     
     [Required] 

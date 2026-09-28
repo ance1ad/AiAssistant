@@ -1,11 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
-using DocumentService.Dtos;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 using Shared.Messaging;
+using Shared.Messaging.Configuration;
 using WebApplication1.Services;
 
 namespace WebApplication1.Messaging;
@@ -47,14 +48,14 @@ public class ArticleEmbeddingConsumer(
             
             switch (eventArgs.RoutingKey)
             {
-                case "embedding.completed":
+                case RabbitEvents.EmbeddingCompleted:
                 {
                     await HandleArticleEmbeddingMessage<EmbeddingCompletedEvent>(
                         channel, eventArgs, json, ProcessingStatus.Complete);
 
                     break;
                 }
-                case "embedding.failed":
+                case RabbitEvents.EmbeddingFailed:
                 {
                     await HandleArticleEmbeddingMessage<EmbeddingFailedEvent>(
                         channel, eventArgs, json, ProcessingStatus.Error);

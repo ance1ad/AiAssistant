@@ -6,7 +6,9 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 using Shared.Messaging;
+using Shared.Messaging.Configuration;
 
 namespace DocumentService.Messaging;
 
@@ -40,21 +42,20 @@ public class DocumentEmbeddingConsumer(
     private async Task HandleEmbeddingResultAsync(object sender, BasicDeliverEventArgs eventArgs)
     {
         var channel = await connectionProvider.GetChannelAsync();
-        
         try
         {
             var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
             
             switch (eventArgs.RoutingKey)
             {
-                case "embedding.completed":
+                case RabbitEvents.EmbeddingCompleted:
                 {
                     await HandleDocumentEmbeddingMessage<EmbeddingCompletedEvent>(
                         channel, eventArgs, json, ProcessingStatus.Complete);
 
                     break;
                 }
-                case "embedding.failed":
+                case RabbitEvents.EmbeddingFailed:
                 {
                     await HandleDocumentEmbeddingMessage<EmbeddingFailedEvent>(
                         channel, eventArgs, json, ProcessingStatus.Error);

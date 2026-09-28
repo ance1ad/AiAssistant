@@ -6,15 +6,18 @@ public class TelegramBotService
 {
     private readonly TelegramBotClient _client;
     private readonly TelegramUpdateHandler _updateHandler;
-    
+    private readonly ILogger<TelegramBotService> _logger;
+
     public TelegramBotService(
         IConfiguration configuration, 
-        TelegramUpdateHandler updateHandler)
+        TelegramUpdateHandler updateHandler,
+        ILogger<TelegramBotService> logger)
     {
-        var token = configuration["Telegram:BotToken"]; // возьми из WebApp секретов
+        var token = configuration["Telegram:BotToken"]; // возьми из секретов
         _client = new TelegramBotClient(token);
 
         _updateHandler = updateHandler;
+        _logger = logger;
     }
 
     public void Start()
@@ -30,7 +33,9 @@ public class TelegramBotService
         Exception exception,
         CancellationToken cancellationToken)
     {
-        Console.WriteLine(exception.Message);
+        _logger.LogError(
+            exception, 
+            exception.Message);
 
         return Task.CompletedTask;
     }

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using Shared.Messaging.Configuration;
 
 namespace Shared.Messaging;
 

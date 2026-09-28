@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 using WebApplication1.Application;
 using WebApplication1.Models;
 

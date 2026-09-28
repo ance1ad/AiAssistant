@@ -8,6 +8,7 @@ using DocumentService.Services;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Shared.Messaging;
+using Shared.Messaging.Configuration;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +22,19 @@ builder.Services.AddDbContext<DocumentDbContext>(options =>
 
 builder.Services.AddGrpc();
 
-// Конфигурируем на http2 
+// REST / Swagger
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5233, listenOptions =>
+    options.ListenAnyIP(5233, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http1;
+    });
+});
+
+// gRPC
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5243, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2;
     });

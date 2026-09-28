@@ -1,4 +1,6 @@
-﻿namespace Shared.Contracts.Events;
+﻿using Shared.Contracts.Models;
+
+namespace Shared.Contracts.Events;
 
 public interface IEmbeddingResult
 {

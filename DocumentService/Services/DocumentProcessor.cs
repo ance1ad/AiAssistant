@@ -3,6 +3,7 @@ using DocumentService.Dtos;
 using DocumentService.Models;
 using DocumentService.Repositories;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 using Shared.Messaging;
 
 namespace DocumentService.Services;
@@ -41,7 +42,8 @@ public class DocumentProcessor(
             
             // Передать чанки
             await publisher.PublishAsync(new TextChunksPreparedEvent(
-                knowledgeDocument.Id, SourceType.Document, chunksData), "text.chunks.prepared");
+                knowledgeDocument.Id, SourceType.Document, chunksData), 
+            RabbitEvents.TextChunksPrepared);
             
             logger.LogInformation(
                 "Document {FileName} submitted for processing ",

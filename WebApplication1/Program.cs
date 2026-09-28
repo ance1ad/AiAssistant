@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Shared.Messaging;
+using Shared.Messaging.Configuration;
 using WebApplication1.Application;
 using WebApplication1.Grpc;
 using WebApplication1.Messaging;
@@ -21,14 +22,24 @@ builder.Services.AddDbContext<AssistentDbContext>(options =>
 
 builder.Services.AddGrpc();
 
-// Конфигурируем на http2 
+// Конфигурируем на http1 REST API / Swagger
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5010, listenOptions =>
+    options.ListenAnyIP(5010, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http1;
+    });
+});
+
+// Конфигурируем на gRPC
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5020, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2;
     });
 });
+
 
 builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection("RabbitMq"));

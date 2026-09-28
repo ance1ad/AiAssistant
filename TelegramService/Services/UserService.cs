@@ -6,8 +6,6 @@ namespace TelegramService.Services;
 
 public class UserService(UsersRepository usersRepository)
 {
-    private readonly UsersRepository _usersRepository = usersRepository;
-
     public async Task<UserResponse> GetOrCreate(long telegramId, string username)
     {
         UserResponse? user = await Get(telegramId);
@@ -18,10 +16,9 @@ public class UserService(UsersRepository usersRepository)
         return user;
     }
     
-    
     public async Task<List<UserResponse>> Get()
     {
-        var list = await _usersRepository.Get();
+        var list = await usersRepository.Get();
         return list
             .Select(user => new UserResponse (
                 user.Id, 
@@ -32,14 +29,13 @@ public class UserService(UsersRepository usersRepository)
     
     public async Task<UserResponse?> Get(long id)
     {
-        var user = await _usersRepository.Get(id);
+        var user = await usersRepository.Get(id);
         if (user != null)
         {
             return new UserResponse(user.Id, user.Name, user.Email);
         }
         return null;
     }
-
 
     public async Task<UserResponse> Create(long telegramId, string name)
     {
@@ -49,7 +45,7 @@ public class UserService(UsersRepository usersRepository)
             TelegramId = telegramId,
             Name = name,
         };
-        await _usersRepository.Add(userEntity);
+        await usersRepository.Add(userEntity);
         
         return new UserResponse
         (
@@ -59,19 +55,18 @@ public class UserService(UsersRepository usersRepository)
         );
     }
     
-    
     public Task<bool> Update(Guid id, UpdateUserRequest userRequest)
     {
         var userEntity = new User { 
             Name = userRequest.Name,
             TelegramId = userRequest.TelegramId
         };
-        return _usersRepository.Update(id, userEntity);
+        return usersRepository.Update(id, userEntity);
     }
     
     public Task<bool> Delete(Guid id)
     {
-        return _usersRepository.Delete(id);
+        return usersRepository.Delete(id);
     }
         
 }

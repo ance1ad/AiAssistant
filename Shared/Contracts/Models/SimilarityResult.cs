@@ -1,4 +1,6 @@
-﻿namespace Shared.Contracts.Events;
+﻿using Shared.Contracts.Events;
+
+namespace Shared.Contracts.Models;
 
 public record SimilarityResult
 (

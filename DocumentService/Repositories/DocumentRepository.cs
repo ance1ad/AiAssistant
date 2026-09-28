@@ -2,6 +2,7 @@
 using DocumentService.Models;
 using Microsoft.EntityFrameworkCore;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace DocumentService.Repositories;
 

@@ -1,4 +1,5 @@
 ﻿using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace WebApplication1.Dtos;
 

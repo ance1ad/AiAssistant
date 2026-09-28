@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using Shared.Messaging.Configuration;
 
 namespace Shared.Messaging;
 
@@ -23,7 +24,7 @@ public class RabbitMqConnectionProvider
         };
     }
 
-    public async Task<IConnection> GetConnectionAsync()
+    private async Task<IConnection> GetConnectionAsync()
     {
         if (_connection != null && _connection.IsOpen)
         {

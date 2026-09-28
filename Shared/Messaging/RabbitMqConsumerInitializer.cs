@@ -1,4 +1,5 @@
 ﻿using RabbitMQ.Client;
+using Shared.Messaging.Configuration;
 
 namespace Shared.Messaging;
 

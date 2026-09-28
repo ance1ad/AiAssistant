@@ -1,20 +1,112 @@
 services:
+  
   postgres:
     image: pgvector/pgvector:pg18
     container_name: aiassistant-postgres
     environment:
       POSTGRES_DB: AiAssistant
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+  
   rabbitmq:
     image: rabbitmq:4-management
     container_name: aiassistant-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web-application:
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+    container_name: aiassistant-article
+    environment:
+      ConnectionStrings__AssistentDbContext: Host=postgres;Port=5432;Database=AiAssistant;Username=postgres;Password=${POSTGRES_PASSWORD}
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+      Jwt__Key: ${JWT_KEY}
+    ports:
+      - "5010:5010" 
+    depends_on:
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  telegram-service:
+    build:
+      context: .
+      dockerfile: TelegramService/Dockerfile
+    container_name: aiassistant-telegram
+    environment:
+      ConnectionStrings__TelegramDbContext: Host=postgres;Port=5432;Database=AiAssistant;Username=postgres;Password=${POSTGRES_PASSWORD}
+      Telegram__BotToken: ${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_started
+
+  embedding-service:
+    build:
+      context: .
+      dockerfile: EmbeddingService/Dockerfile
+    container_name: aiassistant-embedding
+    environment:
+      ConnectionStrings__AssistentDbContext: Host=postgres;Port=5432;Database=AiAssistant;Username=postgres;Password=${POSTGRES_PASSWORD}
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+      Gemini__ApiKey: ${GEMINI_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  document-service:
+    build:
+      context: .
+      dockerfile: DocumentService/Dockerfile
+    container_name: aiassistant-document
+    environment:
+      ConnectionStrings__AssistentDbContext: Host=postgres;Port=5432;Database=AiAssistant;Username=postgres;Password=${POSTGRES_PASSWORD}
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__Port: 5672
+      RabbitMq__UserName: ${RABBITMQ_USERNAME}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5233:5233"
+    depends_on:
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+  
+  assistant-service:
+    build:
+      context: .
+      dockerfile: AssistantService/Dockerfile
+    container_name: aiassistant-assistant
+    environment:
+      Gemini__ApiKey: ${GEMINI_API_KEY}
+    depends_on:
+      - embedding-service
+      - web-application
+      - document-service
+
 volumes:
   postgres_data:

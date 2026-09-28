@@ -2,6 +2,7 @@
 using DocumentService.Models;
 using DocumentService.Repositories;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace DocumentService.Services;
 

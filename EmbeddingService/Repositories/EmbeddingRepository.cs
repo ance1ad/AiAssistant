@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Pgvector;
 using Pgvector.EntityFrameworkCore;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace EmbeddingService.Repositories;
 
@@ -18,6 +19,7 @@ public class EmbeddingRepository(EmbeddingDbContext context)
     public async Task<List<SimilarityResult>> FindSimilarities(Vector questionVector)
     {
         var results = await context.Embeddings
+            .Where(e => e.Vector != null)
             .OrderBy(e => e.Vector!.CosineDistance(questionVector))
             .Take(5)
             .Select(e => new SimilarityResult

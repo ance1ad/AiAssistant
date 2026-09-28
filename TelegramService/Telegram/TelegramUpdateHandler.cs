@@ -22,14 +22,26 @@ public class TelegramUpdateHandler(
         {
             return;
         }
+        var telegramId = update.Message.From.Id;
 
         logger.LogInformation(
             "Пришел вопрос от пользователя {User} - {Question}",  
             update.Message.From.Username,
             update.Message.Text);
         
-        var telegramId = update.Message.From.Id;
-        
+        await botClient.SendMessage(telegramId, 
+            "Спасибо за вопрос! Постараемся ответить как можно скорее", 
+            cancellationToken: cancellationToken);
+
+        string answer = await GetAnswer(update, telegramId);
+
+        await botClient.SendMessage(telegramId, 
+            $"{answer}", 
+            cancellationToken: cancellationToken);
+    }
+
+    private async Task<string> GetAnswer(Update update, long telegramId)
+    {
         using var scope = scopeFactory.CreateScope();
         
         var userService = scope.ServiceProvider
@@ -41,18 +53,23 @@ public class TelegramUpdateHandler(
         var ticketService = scope.ServiceProvider
             .GetRequiredService<TicketService>();
         
-        var ticket = await ticketService
-            .Create(user.Id, update.Message.Text, TicketStatus.New);
-
         var answer = await AskAssistant(update.Message.Text);
         
         logger.LogInformation("Пришел ответ от сервиса: {Answer}",  answer);
-        
-        if (answer == string.Empty) answer = "Не смог найти ответ, формирую запрос...";
 
-        await botClient.SendMessage(telegramId, 
-            $"{answer}", 
-            cancellationToken: cancellationToken);
+        if (!string.IsNullOrEmpty(answer))
+        {
+            await ticketService
+                .Create(user.Id, update.Message.Text, TicketStatus.Processing);
+        }
+        else
+        {
+            await ticketService
+                .Create(user.Id, update.Message.Text, TicketStatus.Error);
+            answer = "Прошу прошения, не смог найти ответ на ваш вопрос, формирую запрос в систему...";
+        }
+
+        return answer;
     }
 
     private async Task<string> AskAssistant(string question)

@@ -18,7 +18,6 @@ public class ArticlesController(Services.ArticleService articleService) : Contro
         return Ok(articles);
     }
     
-    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetArticle(Guid id)
     { 

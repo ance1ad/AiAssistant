@@ -1,5 +1,5 @@
-﻿using DocumentService.Dtos;
-using Shared.Contracts.Events;
+﻿using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 using Shared.Messaging;
 using WebApplication1.Dtos;
 using WebApplication1.Models;
@@ -12,7 +12,6 @@ public class ArticleService(
     RabbitMqPublisher publisher,
     ILogger<ArticleService> logger)
 {
-    private readonly ArticlesRepository _articlesRepository = articlesRepository;
 
     private readonly string[] _stopWords =
     [
@@ -27,7 +26,7 @@ public class ArticleService(
     
     public async Task<List<ArticleResponse>> Get()
     {
-        var list = await _articlesRepository.Get();
+        var list = await articlesRepository.Get();
         return list
             .Select(article => new ArticleResponse (
                 article.Id, 
@@ -41,7 +40,7 @@ public class ArticleService(
     
     public async Task<ArticleResponse?> Get(Guid id)
     {
-        var article = await _articlesRepository.Get(id);
+        var article = await articlesRepository.Get(id);
         if (article != null)
         {
             return new ArticleResponse(
@@ -66,7 +65,7 @@ public class ArticleService(
             ProcessingStatus = ProcessingStatus.Pending,
         };
         
-        await _articlesRepository.Add(articleEntity);
+        await articlesRepository.Add(articleEntity);
         
         try
         {
@@ -75,20 +74,26 @@ public class ArticleService(
                 new (articleEntity.Id, 0, articleEntity.Content)
             };
 
-            await publisher.PublishAsync(new TextChunksPreparedEvent(
-                articleEntity.Id, SourceType.Article, chunkData), "text.chunks.prepared");
+            await publisher.PublishAsync(
+                new TextChunksPreparedEvent(
+                    articleEntity.Id, SourceType.Article, chunkData), 
+                RabbitEvents.TextChunksPrepared);
             
             logger.LogInformation(
                 "Article {ArticleName} submitted for processing",
                 articleEntity.Title);
             
-            await _articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Processing);
+            await articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Processing);
             articleEntity.ProcessingStatus = ProcessingStatus.Processing;
         }
-        catch
+        catch(Exception ex)
         {
-            await _articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Error);
-            throw;
+            await articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Error);
+            
+            logger.LogError(
+                ex,
+                "Failed to submit article {ArticleId} for processing",
+                articleEntity.Id);
         }
         
         return new ArticleResponse
@@ -113,7 +118,41 @@ public class ArticleService(
            ProcessingStatus = ProcessingStatus.Pending,
        }).ToList();
        
-       await _articlesRepository.AddRange(articleEntitys);
+       await articlesRepository.AddRange(articleEntitys);
+
+       foreach (var articleEntity in articleEntitys)
+       {
+           try
+           {
+               var chunkData = new List<TextChunkData>
+               {
+                   new (articleEntity.Id, 0, articleEntity.Content)
+               };
+
+               await publisher.PublishAsync(
+                   new TextChunksPreparedEvent(
+                       articleEntity.Id, SourceType.Article, chunkData), 
+                   RabbitEvents.TextChunksPrepared);
+            
+               logger.LogInformation(
+                   "Article {ArticleName} submitted for processing",
+                   articleEntity.Title);
+            
+               await articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Processing);
+               articleEntity.ProcessingStatus = ProcessingStatus.Processing;
+           }
+           catch(Exception ex)
+           {
+               await articlesRepository.SetArticleStatus(articleEntity.Id, ProcessingStatus.Error);
+               
+               logger.LogError(
+                   ex,
+                   "Failed to submit article {ArticleId} for processing",
+                   articleEntity.Id);
+               
+               throw;
+           }
+       }
        
        return articleEntitys.Select(a => new ArticleResponse(
            a.Id, 
@@ -133,18 +172,18 @@ public class ArticleService(
             Content = articleRequest.Content,
             ProcessingStatus = ProcessingStatus.Pending
         };
-        return _articlesRepository.Update(id, articleEntity);
+        return articlesRepository.Update(id, articleEntity);
     }
 
 
     public async Task SetArticleStatus(Guid id, ProcessingStatus status)
     {
-        await _articlesRepository.SetArticleStatus(id, status);
+        await articlesRepository.SetArticleStatus(id, status);
     }
     
     public Task<bool> Delete(Guid id)
     {
-        return _articlesRepository.Delete(id);
+        return articlesRepository.Delete(id);
     }
 
     
@@ -153,7 +192,7 @@ public class ArticleService(
     {
         var words = ExtractWords(message);
         
-        var articles = await _articlesRepository.Get();
+        var articles = await articlesRepository.Get();
 
         var result = articles
             .Select(article => new

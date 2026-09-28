@@ -15,7 +15,7 @@ builder.Services.AddDbContext<TelegramDbContext>(options =>
 
 builder.Services.AddGrpcClient<AssistantService.Grpc.Assistant.AssistantClient>(options =>
 {
-    options.Address = new Uri("http://localhost:5215");
+    options.Address = new Uri("http://assistant-service:5215");
 });
 
 builder.Services.AddScoped<UserService>();

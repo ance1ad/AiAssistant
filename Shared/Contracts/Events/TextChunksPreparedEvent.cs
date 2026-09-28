@@ -1,4 +1,4 @@
-﻿using DocumentService.Dtos;
+﻿using Shared.Contracts.Models;
 
 namespace Shared.Contracts.Events;
 

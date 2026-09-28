@@ -7,6 +7,7 @@ using EmbeddingService.Services;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Shared.Messaging;
+using Shared.Messaging.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,7 @@ builder.Services.AddDbContext<EmbeddingDbContext>(options =>
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5025, listenOptions =>
+    options.ListenAnyIP(5025, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2;
     });

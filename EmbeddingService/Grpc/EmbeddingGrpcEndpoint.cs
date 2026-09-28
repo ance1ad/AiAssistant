@@ -1,6 +1,7 @@
 ﻿using EmbeddingService.Services;
 using Grpc.Core;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace EmbeddingService.Grpc;
 

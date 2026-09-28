@@ -1,6 +1,7 @@
 ﻿using ArticleService.Grpc;
 using DocumentService.Grpc;
 using Shared.Contracts.Events;
+using Shared.Contracts.Models;
 
 namespace AssistantService.Grpc;
 
