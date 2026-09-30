@@ -1,63 +1,125 @@
-# AI Assistant
+# AiAssistant
 
-> Full Stack AI-ассистент для работы с базой знаний компании с использованием RAG.
-
-## Описание
-
-Проект представляет собой веб-приложение, которое позволяет пользователям задавать вопросы и получать ответы от AI-ассистента.
-
-Система использует подход **RAG (Retrieval-Augmented Generation)**, который позволяет искать релевантную информацию в базе знаний и использовать её при генерации ответа.
+AI Support Assistant - backend-проект на ASP.NET Core,
+использующий RAG для поиска информации в базе знаний
+и генерации ответов пользователям через Telegram.
 
 ## Возможности
 
-- AI-ассистент для ответов на вопросы
-- Поиск по базе знаний
-- REST API
-- React клиент
-- PostgreSQL
-- Entity Framework Core
-- Swagger документация
-
-## Технологический стек
-
-### Backend
-
-- C#
-- ASP.NET Core Web API
-- Entity Framework Core
-- PostgreSQL
-
-### Frontend
-
-- React
-- Next.js
-- TypeScript
+- управление статьями базы знаний
+- загрузка PDF/TXT документов
+- автоматический парсинг и разбиение документов на chunks
+- генерация embeddings
+- семантический поиск через pgvector
+- генерация ответа через Gemini
+- Telegram-бот
+- создание обращений пользователей
+- JWT-аутентификация администратора
+- RabbitMQ для фоновой обработки
+- gRPC между микросервисами
+- Docker Compose для запуска всей системы
 
 ## Архитектура
 
-```text
-Frontend (React / Next.js)
+...
 
-        ↓
+## Стек
 
-ASP.NET Core Web API
+### Backend
+- C#
+- .NET 10
+- ASP.NET Core
+- Entity Framework Core
+- PostgreSQL
+- pgvector
+- RabbitMQ
+- gRPC
 
-        ↓
+### AI
+- Google Gemini
+- Gemini Embeddings
 
-Application Layer
+### Infrastructure
+- Docker
+- Docker Compose
 
-        ↓
+## Микросервисы
 
-Infrastructure Layer
+### WebApplication
+REST API для:
+- Articles
+- Users
+- Tickets
+- Admin authentication
 
-        ↓
+HTTP: 5010
+gRPC: 5020
 
-PostgreSQL
-```
+### DocumentService
+Работа с документами:
+- upload
+- processing
+- parsing
+- chunking
 
-## Как работает RAG
+HTTP: 5233
+gRPC: 5243
 
-1. Пользователь отправляет вопрос
-2. Система ищет релевантную информацию в базе знаний
-3. Найденный контекст добавляется к запросу
-4. LLM формирует ответ
+### EmbeddingService
+Создание embeddings и semantic search.
+
+gRPC: 5025
+
+### AssistantService
+Основная RAG-логика:
+1. получает вопрос
+2. отправляет его в EmbeddingService
+3. получает наиболее похожие источники
+4. получает текст источников
+5. отправляет контекст в Gemini
+6. возвращает ответ
+
+gRPC: 5215
+
+### TelegramService
+Получает сообщения Telegram и передаёт вопросы в AssistantService.
+
+## Схема взаимодействия
+
+Telegram
+   ↓
+TelegramService
+   ↓ gRPC
+AssistantService
+   ├──→ EmbeddingService
+   ├──→ WebApplication
+   ├──→ DocumentService
+   └──→ Gemini
+
+DocumentService
+   ↓
+RabbitMQ
+   ↓
+EmbeddingService
+
+## Запуск
+
+### Требования
+
+- Docker
+- Docker Compose
+- Telegram Bot Token
+- Gemini API Key
+
+### Environment variables
+
+Создать `.env` в корне проекта.
+
+Пример находится в `.env.example`.
+
+...
+
+### Запуск
+
+```bash
+docker compose up --build
