@@ -19,10 +19,6 @@ AI Support Assistant - backend-проект на ASP.NET Core,
 - gRPC между микросервисами
 - Docker Compose для запуска всей системы
 
-## Архитектура
-
-...
-
 ## Стек
 
 ### Backend
@@ -83,24 +79,6 @@ gRPC: 5215
 
 ### TelegramService
 Получает сообщения Telegram и передаёт вопросы в AssistantService.
-
-## Схема взаимодействия
-
-Telegram
-   ↓
-TelegramService
-   ↓ gRPC
-AssistantService
-   ├──→ EmbeddingService
-   ├──→ WebApplication
-   ├──→ DocumentService
-   └──→ Gemini
-
-DocumentService
-   ↓
-RabbitMQ
-   ↓
-EmbeddingService
 
 ## Запуск
 
